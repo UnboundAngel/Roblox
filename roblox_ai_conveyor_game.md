@@ -30,7 +30,7 @@ An AI/data-themed idle farming game inspired by *Grow a Garden* and *Steal a Bra
   - Glow, shader effects, color hue shifts, emission boosts.
   - Stat changes: ⚙️Data output, lifespan, range.
 - **Types**:
-  - Common → Rare → Epic → Legendary → Prismatic
+  - Common → Uncommon → Rare → Epic → Legendary → Prismatic
 - Applied post-spawn, even on conveyor units.
 
 ---
