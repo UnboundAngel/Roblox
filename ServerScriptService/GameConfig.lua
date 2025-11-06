@@ -132,10 +132,7 @@ GameConfig.Upgrades = {
 
 -- Map Generation
 GameConfig.Map = {
-    IslandCount = 5,
-    BedsPerIsland = 4,
-    IslandSpacing = 100,
-    IslandSize = 40,
+    BedCount = 30,  -- Total beds scattered on baseplate
 }
 
 return GameConfig

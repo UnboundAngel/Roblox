@@ -65,34 +65,24 @@ sky.Parent = Lighting
 
 print("[MainServer] Setup lighting")
 
--- Generate map
-print("[MainServer] Generating map...")
+-- Find baseplate and spawn beds
+print("[MainServer] Setting up game on baseplate...")
 
--- Create spawn platform
-local spawnPlatform = ModelGenerator.CreateSpawnPlatform()
-spawnPlatform.Parent = game.Workspace
+-- Find baseplate in workspace
+local baseplate = game.Workspace:FindFirstChild("Baseplate") or game.Workspace:FindFirstChild("Base")
 
--- Create islands in a circle
-local islandCount = GameConfig.Map.IslandCount
-local radius = GameConfig.Map.IslandSpacing
-local islandSize = GameConfig.Map.IslandSize
-
-for i = 1, islandCount do
-    local angle = (i / islandCount) * math.pi * 2
-    local x = math.cos(angle) * radius
-    local z = math.sin(angle) * radius
-
-    local island = ModelGenerator.CreateIsland(Vector3.new(x, 0, z), islandSize)
-    island.Name = "Island" .. i
-    island.Parent = game.Workspace
-
-    -- Spawn beds on island
-    BedManager.SpawnBedsOnIsland(island)
-
-    print(string.format("[MainServer] Created Island %d with beds", i))
+if not baseplate then
+    warn("[MainServer] No Baseplate found! Creating default spawn...")
+    local spawnPlatform = ModelGenerator.CreateSpawnPlatform()
+    spawnPlatform.Parent = game.Workspace
+    baseplate = spawnPlatform
 end
 
-print("[MainServer] Map generation complete!")
+-- Spawn beds scattered on baseplate
+local bedCount = GameConfig.Map.BedCount or 30  -- Default 30 beds
+BedManager.SpawnBedsOnBaseplate(baseplate, bedCount)
+
+print("[MainServer] Baseplate setup complete!")
 
 -- Setup beds
 SleepSystem.SetupBeds()
@@ -154,8 +144,7 @@ end
 
 print("[MainServer] ===== SLEEP GAME INITIALIZED =====")
 print("[MainServer] Admins:", table.concat(GameConfig.Admins, ", "))
-print("[MainServer] Islands:", islandCount)
-print("[MainServer] Total Beds:", #BedManager.AllBeds)
+print("[MainServer] Total Beds Spawned:", #BedManager.AllBeds)
 print("[MainServer] Day/Night Cycle: Every", GameConfig.DayNight.CycleDuration, "seconds")
 print("[MainServer] Random Events: Every", GameConfig.RandomEvents.MinInterval, "-", GameConfig.RandomEvents.MaxInterval, "seconds")
 print("[MainServer] =====================================")
