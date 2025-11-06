@@ -32,16 +32,24 @@ local DayNightEvent = RemoteEvents:WaitForChild("DayNight")
 local TweenService = game:GetService("TweenService")
 
 DayNightEvent.OnClientEvent:Connect(function(isDay)
-    if isDay then
-        UI.dayNightText.Text = "☀️ DAY"
-        TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
-            BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-        }):Play()
-    else
-        UI.dayNightText.Text = "🌙 NIGHT (2x)"
-        TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
-            BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-        }):Play()
+    if UI.dayNightText then
+        if isDay then
+            UI.dayNightText.Text = "☀️ DAY"
+        else
+            UI.dayNightText.Text = "🌙 NIGHT (2x)"
+        end
+    end
+
+    if UI.dayNightLabel then
+        if isDay then
+            TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+                BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+            }):Play()
+        else
+            TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+                BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+            }):Play()
+        end
     end
 end)
 
@@ -159,13 +167,15 @@ local function UpdateUpgradeButtons()
 end
 
 -- Handle upgrade purchases
-for upgradeName, button in pairs(UI.upgradeButtons) do
-    button.MouseButton1Click:Connect(function()
-        local config = UpgradesConfig[upgradeName]
-        if currentUpgrades[upgradeName] < config.MaxLevel then
-            PurchaseUpgradeEvent:FireServer(upgradeName)
-        end
-    end)
+if UI.upgradeButtons then
+    for upgradeName, button in pairs(UI.upgradeButtons) do
+        button.MouseButton1Click:Connect(function()
+            local config = UpgradesConfig[upgradeName]
+            if currentUpgrades[upgradeName] < config.MaxLevel then
+                PurchaseUpgradeEvent:FireServer(upgradeName)
+            end
+        end)
+    end
 end
 
 UpdateUpgradesEvent.OnClientEvent:Connect(function(upgrades)

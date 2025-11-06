@@ -54,7 +54,7 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, -40, 0, 50)
 titleLabel.Position = UDim2.new(0, 20, 0, 15)
 titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "< Zone Selection"
+titleLabel.Text = "Zone Selection"
 titleLabel.TextColor3 = Color3.fromRGB(100, 200, 255)
 titleLabel.TextSize = 32
 titleLabel.Font = Enum.Font.GothamBold

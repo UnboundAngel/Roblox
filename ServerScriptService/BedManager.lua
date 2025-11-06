@@ -120,11 +120,7 @@ end
 
 -- Spawn beds in a specific zone area
 function BedManager.SpawnBedsInArea(platform, bedCount, zoneName, multiplier)
-    local templateBed = game.Workspace:FindFirstChild("Bed")
-    if not templateBed then
-        warn("[BedManager] No 'Bed' model found in Workspace!")
-        return
-    end
+    local ModelGenerator = require(script.Parent.ModelGenerator)
 
     local platformSize = platform.Size
     local platformPos = platform.Position
@@ -134,69 +130,35 @@ function BedManager.SpawnBedsInArea(platform, bedCount, zoneName, multiplier)
     local spawnAreaZ = platformSize.Z * 0.8
 
     for i = 1, bedCount do
-        local bed = templateBed:Clone()
-
         -- Get random mutation
         local mutation = GetRandomMutation()
 
         -- Apply zone multiplier boost
         local finalMultiplier = mutation.Multiplier * (multiplier or 1.0)
 
-        -- Color the bed
-        local woolCover = bed:FindFirstChild("WoolCover", true)
-        if woolCover and woolCover:IsA("BasePart") then
-            woolCover.Color = mutation.Color
-        end
-
         -- Random position on platform
         local randomX = math.random(-spawnAreaX/2, spawnAreaX/2)
         local randomZ = math.random(-spawnAreaZ/2, spawnAreaZ/2)
         local spawnY = platformPos.Y + (platformSize.Y / 2) + 3
 
-        -- Position the bed
-        if bed.PrimaryPart then
-            bed:SetPrimaryPartCFrame(CFrame.new(platformPos.X + randomX, spawnY, platformPos.Z + randomZ))
-        else
-            local firstPart = bed:FindFirstChildWhichIsA("BasePart")
-            if firstPart then
-                firstPart.Position = Vector3.new(platformPos.X + randomX, spawnY, platformPos.Z + randomZ)
+        -- Create bed using ModelGenerator
+        local bedPosition = Vector3.new(platformPos.X + randomX, spawnY, platformPos.Z + randomZ)
+        local bed = ModelGenerator.CreateBed(bedPosition, mutation)
+
+        -- Update prompt text to show zone multiplier
+        local mattress = bed:FindFirstChild("Mattress")
+        if mattress then
+            local prompt = mattress:FindFirstChild("ProximityPrompt")
+            if prompt then
+                prompt.ObjectText = string.format("%s Bed (%.1fx)", mutation.Name, finalMultiplier)
             end
         end
 
-        -- Add proximity prompt
-        local mattress = bed:FindFirstChild("Mattress") or bed:FindFirstChild("WoolCover") or bed:FindFirstChildWhichIsA("BasePart")
-        if mattress then
-            local prompt = mattress:FindFirstChild("ProximityPrompt") or Instance.new("ProximityPrompt")
-            prompt.ActionText = "Sleep in " .. mutation.Name .. " Bed"
-            prompt.ObjectText = string.format("%s Bed (%.1fx)", mutation.Name, finalMultiplier)
-            prompt.MaxActivationDistance = 10
-            prompt.HoldDuration = 0
-            prompt.Parent = mattress
-        end
-
-        -- Store mutation and multiplier
-        local mutationValue = bed:FindFirstChild("Mutation") or Instance.new("StringValue")
-        mutationValue.Name = "Mutation"
-        mutationValue.Value = mutation.Name
-        mutationValue.Parent = bed
-
-        local multiplierValue = bed:FindFirstChild("ZoneMultiplier") or Instance.new("NumberValue")
+        -- Store zone multiplier
+        local multiplierValue = Instance.new("NumberValue")
         multiplierValue.Name = "ZoneMultiplier"
         multiplierValue.Value = multiplier or 1.0
         multiplierValue.Parent = bed
-
-        -- Add glow for Golden beds
-        if mutation.Name == "Golden" then
-            for _, part in ipairs(bed:GetDescendants()) do
-                if part:IsA("BasePart") and not part:FindFirstChild("PointLight") then
-                    local light = Instance.new("PointLight")
-                    light.Brightness = 1.5
-                    light.Color = mutation.Color
-                    light.Range = 12
-                    light.Parent = part
-                end
-            end
-        end
 
         bed.Name = zoneName .. "_Bed_" .. i
         bed.Parent = workspace

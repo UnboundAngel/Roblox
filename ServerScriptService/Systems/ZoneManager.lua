@@ -23,11 +23,11 @@ ZoneManager.Zones = {} -- Store zone models and data
 
 -- Zone positions (spread out on baseplate)
 local ZonePositions = {
-    ["<à Hub"] = Vector3.new(0, 5, 0),
+    ["<ï¿½ Hub"] = Vector3.new(0, 5, 0),
     ["<1 Starter Zone"] = Vector3.new(-150, 5, -150),
     ["<2 Forest Zone"] = Vector3.new(150, 5, -150),
-    ["ð Mountain Zone"] = Vector3.new(-150, 5, 150),
-    ["<Ö Beach Zone"] = Vector3.new(150, 5, 150),
+    ["ï¿½ Mountain Zone"] = Vector3.new(-150, 5, 150),
+    ["<ï¿½ Beach Zone"] = Vector3.new(150, 5, 150),
     ["< Volcano Zone"] = Vector3.new(-300, 5, 0),
     ["D Ice Zone"] = Vector3.new(300, 5, 0),
     ["< Space Zone"] = Vector3.new(0, 5, -300),
@@ -40,22 +40,22 @@ function ZoneManager.CreateZoneArea(zoneName, zoneConfig, position)
     zoneFolder.Name = zoneName
     zoneFolder.Parent = workspace
 
-    -- Create zone platform
+    -- Create zone platform (much larger)
     local platform = Instance.new("Part")
     platform.Name = "ZonePlatform"
-    platform.Size = Vector3.new(100, 2, 100)
+    platform.Size = Vector3.new(250, 3, 250)  -- Made much bigger
     platform.Position = position
     platform.Anchored = true
     platform.Color = zoneConfig.Color
-    platform.Material = Enum.Material.Neon
+    platform.Material = Enum.Material.SmoothPlastic  -- Changed from Neon to SmoothPlastic
     platform.TopSurface = Enum.SurfaceType.Smooth
     platform.BottomSurface = Enum.SurfaceType.Smooth
     platform.Parent = zoneFolder
 
-    -- Add glow effect
+    -- Add subtle glow effect (not blinding)
     local pointLight = Instance.new("PointLight")
-    pointLight.Brightness = 1
-    pointLight.Range = 50
+    pointLight.Brightness = 0.5  -- Reduced brightness
+    pointLight.Range = 30  -- Reduced range
     pointLight.Color = zoneConfig.Color
     pointLight.Parent = platform
 
@@ -132,7 +132,7 @@ function ZoneManager.TeleportToZone(player, zoneName)
 
         EventNotificationEvent:FireClient(
             player,
-            string.format("=Í Entered %s", zoneName),
+            string.format("=ï¿½ Entered %s", zoneName),
             2,
             nil,
             nil
