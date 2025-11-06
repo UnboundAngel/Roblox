@@ -22,22 +22,23 @@ screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.IgnoreGuiInset = true
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- ===== TOP CENTER: DAY/NIGHT TIME =====
+-- ===== TOP CENTER: DAY/NIGHT TIME WITH COUNTDOWN =====
 local dayNightFrame = Instance.new("Frame")
 dayNightFrame.Name = "DayNight"
-dayNightFrame.Size = UDim2.new(0, 120, 0, 40)
-dayNightFrame.Position = UDim2.new(0.5, -60, 0, 10)
+dayNightFrame.Size = UDim2.new(0, 150, 0, 50)
+dayNightFrame.Position = UDim2.new(0.5, -75, 0, 10)
 dayNightFrame.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
 dayNightFrame.BorderSizePixel = 0
 dayNightFrame.Parent = screenGui
 
 local dayNightCorner = Instance.new("UICorner")
-dayNightCorner.CornerRadius = UDim.new(0, 20)
+dayNightCorner.CornerRadius = UDim.new(0, 25)
 dayNightCorner.Parent = dayNightFrame
 
 local dayNightText = Instance.new("TextLabel")
 dayNightText.Name = "Text"
-dayNightText.Size = UDim2.new(1, 0, 1, 0)
+dayNightText.Size = UDim2.new(1, 0, 0, 28)
+dayNightText.Position = UDim2.new(0, 0, 0, 2)
 dayNightText.BackgroundTransparency = 1
 dayNightText.Text = "☀️ DAY"
 dayNightText.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -45,6 +46,18 @@ dayNightText.TextSize = 18
 dayNightText.Font = Enum.Font.GothamBold
 dayNightText.TextStrokeTransparency = 0.5
 dayNightText.Parent = dayNightFrame
+
+local dayNightTimer = Instance.new("TextLabel")
+dayNightTimer.Name = "Timer"
+dayNightTimer.Size = UDim2.new(1, 0, 0, 18)
+dayNightTimer.Position = UDim2.new(0, 0, 1, -20)
+dayNightTimer.BackgroundTransparency = 1
+dayNightTimer.Text = "2:30"
+dayNightTimer.TextColor3 = Color3.fromRGB(255, 255, 255)
+dayNightTimer.TextSize = 14
+dayNightTimer.Font = Enum.Font.Gotham
+dayNightTimer.TextStrokeTransparency = 0.5
+dayNightTimer.Parent = dayNightFrame
 
 -- ===== TOP LEFT: CURRENCY =====
 local currencyFrame = Instance.new("Frame")
@@ -79,11 +92,11 @@ tpValue.Font = Enum.Font.GothamBold
 tpValue.TextXAlignment = Enum.TextXAlignment.Left
 tpValue.Parent = currencyFrame
 
--- ===== LEFT SIDE: ACTION BUTTONS =====
+-- ===== MIDDLE LEFT: ACTION BUTTONS =====
 local leftButtons = Instance.new("Frame")
 leftButtons.Name = "LeftButtons"
 leftButtons.Size = UDim2.new(0, 60, 0, 300)
-leftButtons.Position = UDim2.new(0, 10, 0, 60)
+leftButtons.Position = UDim2.new(0, 10, 0.5, -150)  -- Centered vertically
 leftButtons.BackgroundTransparency = 1
 leftButtons.Parent = screenGui
 
@@ -125,7 +138,7 @@ local zonesButton = CreateCircleButton("ZonesButton", "🌍", Color3.fromRGB(100
 local eventFrame = Instance.new("Frame")
 eventFrame.Name = "EventFrame"
 eventFrame.Size = UDim2.new(0, 250, 0, 80)
-eventFrame.Position = UDim2.new(1, -260, 1, -90)
+eventFrame.Position = UDim2.new(1, -260, 1, -160)  -- Moved up to make room for next event timer
 eventFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
 eventFrame.BorderSizePixel = 0
 eventFrame.Visible = false
@@ -177,6 +190,43 @@ eventTimer.Font = Enum.Font.Gotham
 eventTimer.TextXAlignment = Enum.TextXAlignment.Left
 eventTimer.Parent = eventFrame
 
+-- ===== BOTTOM RIGHT: NEXT EVENT COUNTDOWN =====
+local nextEventFrame = Instance.new("Frame")
+nextEventFrame.Name = "NextEventFrame"
+nextEventFrame.Size = UDim2.new(0, 250, 0, 60)
+nextEventFrame.Position = UDim2.new(1, -260, 1, -70)
+nextEventFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+nextEventFrame.BorderSizePixel = 0
+nextEventFrame.Parent = screenGui
+
+local nextEventCorner = Instance.new("UICorner")
+nextEventCorner.CornerRadius = UDim.new(0, 12)
+nextEventCorner.Parent = nextEventFrame
+
+local nextEventLabel = Instance.new("TextLabel")
+nextEventLabel.Name = "Label"
+nextEventLabel.Size = UDim2.new(1, -20, 0, 25)
+nextEventLabel.Position = UDim2.new(0, 10, 0, 5)
+nextEventLabel.BackgroundTransparency = 1
+nextEventLabel.Text = "Next Event In:"
+nextEventLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+nextEventLabel.TextSize = 14
+nextEventLabel.Font = Enum.Font.Gotham
+nextEventLabel.TextXAlignment = Enum.TextXAlignment.Left
+nextEventLabel.Parent = nextEventFrame
+
+local nextEventTimer = Instance.new("TextLabel")
+nextEventTimer.Name = "Timer"
+nextEventTimer.Size = UDim2.new(1, -20, 0, 28)
+nextEventTimer.Position = UDim2.new(0, 10, 0, 28)
+nextEventTimer.BackgroundTransparency = 1
+nextEventTimer.Text = "5:00"
+nextEventTimer.TextColor3 = Color3.fromRGB(100, 255, 150)
+nextEventTimer.TextSize = 20
+nextEventTimer.Font = Enum.Font.GothamBold
+nextEventTimer.TextXAlignment = Enum.TextXAlignment.Left
+nextEventTimer.Parent = nextEventFrame
+
 -- ===== ADMIN PANEL (F5 - Hidden by default) =====
 local adminPanel = Instance.new("Frame")
 adminPanel.Name = "AdminPanel"
@@ -210,9 +260,9 @@ adminTitleCorner.Parent = adminTitle
 local adminTitleText = Instance.new("TextLabel")
 adminTitleText.Size = UDim2.new(1, 0, 1, 0)
 adminTitleText.BackgroundTransparency = 1
-adminTitleText.Text = "ADMIN PANEL"
+adminTitleText.Text = "ADMIN PANEL (Press F5 to close)"
 adminTitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
-adminTitleText.TextSize = 24
+adminTitleText.TextSize = 20
 adminTitleText.Font = Enum.Font.GothamBold
 adminTitleText.Parent = adminTitle
 
@@ -222,10 +272,10 @@ commandInput.Size = UDim2.new(1, -30, 0, 45)
 commandInput.Position = UDim2.new(0, 15, 0, 65)
 commandInput.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 commandInput.BorderSizePixel = 0
-commandInput.PlaceholderText = "Type command... (Help for list)"
+commandInput.PlaceholderText = "Type 'Help' for commands | 'GlobalEvent <name>' for server-wide events"
 commandInput.Text = ""
 commandInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-commandInput.TextSize = 16
+commandInput.TextSize = 14
 commandInput.Font = Enum.Font.Gotham
 commandInput.ClearTextOnFocus = false
 commandInput.Parent = adminPanel
@@ -258,11 +308,13 @@ _G.GameUI = {
     tpValue = tpValue,
     dayNightFrame = dayNightFrame,
     dayNightText = dayNightText,
+    dayNightTimer = dayNightTimer,
     dayNightLabel = dayNightFrame,  -- Alias for compatibility
     eventFrame = eventFrame,
     eventIcon = eventIcon,
     eventTitle = eventTitle,
     eventTimer = eventTimer,
+    nextEventTimer = nextEventTimer,
     hubButton = hubButton,
     zonesButton = zonesButton,
     adminPanel = adminPanel,
