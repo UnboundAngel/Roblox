@@ -153,9 +153,13 @@ local function CompleteLoading()
     }):Play()
 
     for _, child in ipairs(background:GetChildren()) do
-        if child:IsA("GuiObject") then
+        if child:IsA("TextLabel") or child:IsA("TextButton") or child:IsA("TextBox") then
             TweenService:Create(child, TweenInfo.new(1), {
                 TextTransparency = 1
+            }):Play()
+        elseif child:IsA("ImageLabel") or child:IsA("ImageButton") then
+            TweenService:Create(child, TweenInfo.new(1), {
+                ImageTransparency = 1
             }):Play()
         end
     end

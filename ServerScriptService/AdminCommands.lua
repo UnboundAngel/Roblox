@@ -15,7 +15,7 @@ local ToolSystem = require(script.Parent.ToolSystem)
 local SleepSystem = require(script.Parent.SleepSystem)
 local RandomEvents = require(script.Parent.RandomEvents)
 local BedManager = require(script.Parent.BedManager)
-local AdminEventSystem = require(script.Parent.Systems.AdminEventSystem)
+local AdminEventSystem = require(script.Parent.AdminEventSystem)
 
 local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
 local AdminCommandEvent = RemoteEvents:WaitForChild("AdminCommand")

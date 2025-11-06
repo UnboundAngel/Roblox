@@ -74,7 +74,7 @@ local AutoSleeperSystem = require(SystemsFolder:WaitForChild("AutoSleeperSystem"
 local OfflineGenerationSystem = require(SystemsFolder:WaitForChild("OfflineGenerationSystem"))
 local RebirthSystem = require(SystemsFolder:WaitForChild("RebirthSystem"))
 local ZoneManager = require(SystemsFolder:WaitForChild("ZoneManager"))
-local AdminEventSystem = require(SystemsFolder:WaitForChild("AdminEventSystem"))
+local AdminEventSystem = require(script.Parent:WaitForChild("AdminEventSystem"))
 
 print("[MainServer] Loaded all modules")
 

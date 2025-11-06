@@ -24,7 +24,7 @@ local UI = _G.GameUI
 -- ===== SCORE UPDATE =====
 local UpdateScoreEvent = RemoteEvents:WaitForChild("UpdateScore")
 UpdateScoreEvent.OnClientEvent:Connect(function(newScore)
-    UI.scoreValue.Text = string.format("%d", math.floor(newScore))
+    UI.tpValue.Text = string.format("%d", math.floor(newScore))
 end)
 
 -- ===== DAY/NIGHT UPDATE =====
@@ -40,13 +40,13 @@ DayNightEvent.OnClientEvent:Connect(function(isDay)
         end
     end
 
-    if UI.dayNightLabel then
+    if UI.dayNightFrame then
         if isDay then
-            TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            TweenService:Create(UI.dayNightFrame, TweenInfo.new(2, Enum.EasingStyle.Sine), {
                 BackgroundColor3 = Color3.fromRGB(255, 200, 50)
             }):Play()
         else
-            TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            TweenService:Create(UI.dayNightFrame, TweenInfo.new(2, Enum.EasingStyle.Sine), {
                 BackgroundColor3 = Color3.fromRGB(50, 50, 150)
             }):Play()
         end
@@ -58,53 +58,57 @@ local EventNotificationEvent = RemoteEvents:WaitForChild("EventNotification")
 local currentEventName = nil
 
 EventNotificationEvent.OnClientEvent:Connect(function(message, duration, eventName, multiplier)
-    if message ~= "" then
+    if message ~= "" and eventName then
         -- Store current event data
         currentEventName = eventName
 
-        -- Show event icon with appropriate image
-        local eventIcon = UI.eventIcon
-        local eventTooltip = UI.eventTooltip
+        -- Show event frame
+        if UI.eventFrame then
+            UI.eventFrame.Visible = true
 
-        if eventName and EventImages[eventName] and EventImages[eventName] ~= "" then
-            eventIcon.Image = EventImages[eventName]
-            eventIcon.Visible = true
-
-            -- Update tooltip
-            eventTooltip:FindFirstChild("Title").Text = eventName
-
-            -- Set multiplier text based on event type
-            local multiplierText = ""
-            if eventName == "Score Surge" then
-                multiplierText = string.format("⚡ %dx Multiplier", multiplier or 3)
-            elseif eventName == "Bed Chaos" then
-                multiplierText = "🛏️ All beds randomized!"
-            elseif eventName == "Theft Frenzy" then
-                multiplierText = "💰 Tool cooldown halved"
-            elseif eventName == "Golden Hour" then
-                multiplierText = "✨ Night bonus active"
-            elseif eventName == "Shield Storm" then
-                multiplierText = "🛡️ Theft protection"
-            elseif eventName == "Score Drain" then
-                multiplierText = "💀 5% score lost"
+            -- Update event icon if available
+            if UI.eventIcon and EventImages[eventName] and EventImages[eventName] ~= "" then
+                UI.eventIcon.Image = EventImages[eventName]
             end
-            eventTooltip:FindFirstChild("Multiplier").Text = multiplierText
-            eventTooltip:FindFirstChild("Duration").Text = string.format("⏱️ %ds remaining", duration or 0)
-        end
 
-        if duration > 0 then
-            task.delay(duration, function()
-                if currentEventName == eventName then
-                    eventIcon.Visible = false
-                    eventTooltip.Visible = false
-                    currentEventName = nil
-                end
-            end)
+            -- Update title
+            if UI.eventTitle then
+                UI.eventTitle.Text = eventName
+            end
+
+            -- Update timer
+            if UI.eventTimer and duration then
+                UI.eventTimer.Text = string.format("⏱️ %ds", duration)
+
+                -- Start countdown
+                task.spawn(function()
+                    for i = duration, 0, -1 do
+                        if currentEventName ~= eventName then
+                            break
+                        end
+                        if UI.eventTimer then
+                            UI.eventTimer.Text = string.format("⏱️ %ds", i)
+                        end
+                        task.wait(1)
+                    end
+                end)
+            end
+
+            -- Hide after duration
+            if duration and duration > 0 then
+                task.delay(duration, function()
+                    if currentEventName == eventName and UI.eventFrame then
+                        UI.eventFrame.Visible = false
+                        currentEventName = nil
+                    end
+                end)
+            end
         end
     else
-        -- Hide event icon when event ends
-        UI.eventIcon.Visible = false
-        UI.eventTooltip.Visible = false
+        -- Hide event frame
+        if UI.eventFrame then
+            UI.eventFrame.Visible = false
+        end
         currentEventName = nil
     end
 end)
@@ -117,83 +121,6 @@ SleepEvent.OnClientEvent:Connect(function(isSleeping, mutationType)
     else
         print("[Client] Stopped sleeping")
     end
-end)
-
--- ===== UPGRADES =====
-local PurchaseUpgradeEvent = RemoteEvents:WaitForChild("PurchaseUpgrade")
-local UpdateUpgradesEvent = RemoteEvents:WaitForChild("UpdateUpgrades")
-
--- Config (copied from server for cost calculations)
-local UpgradesConfig = {
-    SleepEfficiency = {MaxLevel = 10, BaseCost = 100, CostMultiplier = 2.5},
-    TheftProtection = {MaxLevel = 10, BaseCost = 200, CostMultiplier = 2.5},
-    ToolCapacity = {MaxLevel = 5, BaseCost = 300, CostMultiplier = 3},
-    ScoreMultiplier = {MaxLevel = 10, BaseCost = 500, CostMultiplier = 3},
-}
-
-local currentUpgrades = {
-    SleepEfficiency = 0,
-    TheftProtection = 0,
-    ToolCapacity = 0,
-    ScoreMultiplier = 0,
-}
-
--- Update upgrade buttons
-local function UpdateUpgradeButtons()
-    if not UI.upgradeButtons then
-        return
-    end
-
-    for upgradeName, button in pairs(UI.upgradeButtons) do
-        local config = UpgradesConfig[upgradeName]
-        local currentLevel = currentUpgrades[upgradeName]
-
-        local levelLabel = button:FindFirstChild("LevelLabel")
-        local costLabel = button:FindFirstChild("CostLabel")
-
-        if levelLabel then
-            levelLabel.Text = string.format("Level: %d/%d", currentLevel, config.MaxLevel)
-        end
-
-        if costLabel then
-            if currentLevel >= config.MaxLevel then
-                costLabel.Text = "MAX LEVEL"
-                costLabel.TextColor3 = Color3.fromRGB(255, 215, 0)
-                button.BackgroundColor3 = Color3.fromRGB(80, 80, 0)
-            else
-                local cost = math.floor(config.BaseCost * (config.CostMultiplier ^ currentLevel))
-                costLabel.Text = string.format("Cost: %d TP", cost)
-                costLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-                button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-            end
-        end
-    end
-end
-
--- Handle upgrade purchases
-if UI.upgradeButtons then
-    for upgradeName, button in pairs(UI.upgradeButtons) do
-        button.MouseButton1Click:Connect(function()
-            local config = UpgradesConfig[upgradeName]
-            if currentUpgrades[upgradeName] < config.MaxLevel then
-                PurchaseUpgradeEvent:FireServer(upgradeName)
-            end
-        end)
-    end
-end
-
-UpdateUpgradesEvent.OnClientEvent:Connect(function(upgrades)
-    currentUpgrades = upgrades
-    UpdateUpgradeButtons()
-end)
-
-UpdateUpgradeButtons()
-
--- ===== TOOL SHOP =====
-local PurchaseToolEvent = RemoteEvents:WaitForChild("PurchaseTool")
-
-UI.toolShopButton.MouseButton1Click:Connect(function()
-    PurchaseToolEvent:FireServer()
 end)
 
 -- ===== ADMIN PANEL =====
