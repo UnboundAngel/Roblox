@@ -1,8 +1,14 @@
--- DayNightCycle.lua
--- Manages day/night transitions every 5 minutes
+--[[
+    DayNightCycle.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/DayNightCycle
+
+    Simple day/night cycle using Lighting.ClockTime - NO physical sun/moon objects
+]]
 
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local GameConfig = require(script.Parent.GameConfig)
 local SleepSystem = require(script.Parent.SleepSystem)
@@ -18,20 +24,18 @@ local function SwitchToDay()
     DayNightCycle.IsDay = true
     SleepSystem.IsNight = false
 
-    -- Update lighting
-    local TweenService = game:GetService("TweenService")
-    local tweenInfo = TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-
-    TweenService:Create(Lighting, tweenInfo, {
-        ClockTime = 14,
+    -- Smoothly transition lighting to day
+    TweenService:Create(Lighting, TweenInfo.new(5, Enum.EasingStyle.Sine), {
+        ClockTime = 12,
         OutdoorAmbient = GameConfig.DayNight.DayAmbient,
         Ambient = GameConfig.DayNight.DayAmbient,
         Brightness = 2,
+        ColorShift_Top = Color3.fromRGB(255, 230, 200),
     }):Play()
 
     -- Notify all clients
     DayNightEvent:FireAllClients(true)
-    print("[DayNightCycle] Switched to DAY")
+    print("[DayNightCycle] ☀️  DAY - Normal rates")
 end
 
 -- Switch to night
@@ -39,24 +43,23 @@ local function SwitchToNight()
     DayNightCycle.IsDay = false
     SleepSystem.IsNight = true
 
-    -- Update lighting
-    local TweenService = game:GetService("TweenService")
-    local tweenInfo = TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-
-    TweenService:Create(Lighting, tweenInfo, {
+    -- Smoothly transition lighting to night
+    TweenService:Create(Lighting, TweenInfo.new(5, Enum.EasingStyle.Sine), {
         ClockTime = 0,
         OutdoorAmbient = GameConfig.DayNight.NightAmbient,
         Ambient = GameConfig.DayNight.NightAmbient,
         Brightness = 0.5,
+        ColorShift_Top = Color3.fromRGB(100, 120, 180),
     }):Play()
 
     -- Notify all clients
     DayNightEvent:FireAllClients(false)
-    print("[DayNightCycle] Switched to NIGHT (2x earning, increased theft)")
+    print("[DayNightCycle] 🌙 NIGHT - 2x earning, increased theft")
 end
 
 -- Start the cycle
 function DayNightCycle.Start()
+    -- Initial setup
     SwitchToDay()
 
     -- Cycle every 5 minutes
@@ -71,6 +74,8 @@ function DayNightCycle.Start()
             end
         end
     end)
+
+    print("[DayNightCycle] Started - Cycles every", GameConfig.DayNight.CycleDuration, "seconds")
 end
 
 return DayNightCycle

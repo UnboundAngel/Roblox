@@ -1,9 +1,15 @@
--- MainUI.lua
--- Creates all UI elements for the game
+--[[
+    MainUI.lua
+    SCRIPT TYPE: LocalScript (NOT Script or ModuleScript)
+    LOCATION: StarterGui/MainUI
+
+    Professional sidebar UI with event icons and hover tooltips
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
@@ -12,218 +18,367 @@ local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "GameUI"
 screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.IgnoreGuiInset = true
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- ===== SCORE DISPLAY (Top Right) =====
-local scoreFrame = Instance.new("Frame")
-scoreFrame.Name = "ScoreFrame"
-scoreFrame.Size = UDim2.new(0, 250, 0, 100)
-scoreFrame.Position = UDim2.new(1, -260, 0, 10)
-scoreFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-scoreFrame.BorderSizePixel = 0
-scoreFrame.Parent = screenGui
+-- ===== RIGHT SIDEBAR =====
+local sidebar = Instance.new("Frame")
+sidebar.Name = "Sidebar"
+sidebar.Size = UDim2.new(0, 250, 1, 0)
+sidebar.Position = UDim2.new(1, -250, 0, 0)
+sidebar.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+sidebar.BorderSizePixel = 0
+sidebar.Parent = screenGui
 
-local scoreFrameCorner = Instance.new("UICorner")
-scoreFrameCorner.CornerRadius = UDim.new(0, 10)
-scoreFrameCorner.Parent = scoreFrame
+-- Sidebar gradient
+local sidebarGradient = Instance.new("UIGradient")
+sidebarGradient.Color = ColorSequence.new(Color3.fromRGB(30, 30, 35), Color3.fromRGB(20, 20, 25))
+sidebarGradient.Rotation = 90
+sidebarGradient.Parent = sidebar
 
-local scoreTitle = Instance.new("TextLabel")
-scoreTitle.Name = "Title"
-scoreTitle.Size = UDim2.new(1, 0, 0, 30)
-scoreTitle.Position = UDim2.new(0, 0, 0, 5)
-scoreTitle.BackgroundTransparency = 1
-scoreTitle.Text = "⏰ TIME POINTS"
-scoreTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-scoreTitle.TextSize = 18
-scoreTitle.Font = Enum.Font.GothamBold
-scoreTitle.Parent = scoreFrame
+-- Player info section
+local playerInfo = Instance.new("Frame")
+playerInfo.Name = "PlayerInfo"
+playerInfo.Size = UDim2.new(1, -20, 0, 100)
+playerInfo.Position = UDim2.new(0, 10, 0, 10)
+playerInfo.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+playerInfo.BorderSizePixel = 0
+playerInfo.Parent = sidebar
 
-local scoreValue = Instance.new("TextLabel")
-scoreValue.Name = "Value"
-scoreValue.Size = UDim2.new(1, 0, 0, 50)
-scoreValue.Position = UDim2.new(0, 0, 0, 35)
-scoreValue.BackgroundTransparency = 1
-scoreValue.Text = "0"
-scoreValue.TextColor3 = Color3.fromRGB(100, 255, 100)
-scoreValue.TextSize = 36
-scoreValue.Font = Enum.Font.GothamBold
-scoreValue.Parent = scoreFrame
+local playerInfoCorner = Instance.new("UICorner")
+playerInfoCorner.CornerRadius = UDim.new(0, 8)
+playerInfoCorner.Parent = playerInfo
 
--- ===== DAY/NIGHT INDICATOR =====
-local dayNightLabel = Instance.new("TextLabel")
-dayNightLabel.Name = "DayNightLabel"
-dayNightLabel.Size = UDim2.new(0, 150, 0, 40)
-dayNightLabel.Position = UDim2.new(0.5, -75, 0, 10)
-dayNightLabel.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
-dayNightLabel.BorderSizePixel = 0
-dayNightLabel.Text = "☀️ DAY"
-dayNightLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-dayNightLabel.TextSize = 24
-dayNightLabel.Font = Enum.Font.GothamBold
-dayNightLabel.Parent = screenGui
+-- Player name
+local playerNameLabel = Instance.new("TextLabel")
+playerNameLabel.Size = UDim2.new(1, -20, 0, 25)
+playerNameLabel.Position = UDim2.new(0, 10, 0, 10)
+playerNameLabel.BackgroundTransparency = 1
+playerNameLabel.Text = player.Name
+playerNameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerNameLabel.TextSize = 16
+playerNameLabel.Font = Enum.Font.GothamBold
+playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+playerNameLabel.Parent = playerInfo
+
+-- Time Points display
+local tpLabel = Instance.new("TextLabel")
+tpLabel.Size = UDim2.new(1, -20, 0, 20)
+tpLabel.Position = UDim2.new(0, 10, 0, 40)
+tpLabel.BackgroundTransparency = 1
+tpLabel.Text = "⏰ Time Points"
+tpLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+tpLabel.TextSize = 12
+tpLabel.Font = Enum.Font.Gotham
+tpLabel.TextXAlignment = Enum.TextXAlignment.Left
+tpLabel.Parent = playerInfo
+
+local tpValue = Instance.new("TextLabel")
+tpValue.Name = "TPValue"
+tpValue.Size = UDim2.new(1, -20, 0, 30)
+tpValue.Position = UDim2.new(0, 10, 0, 60)
+tpValue.BackgroundTransparency = 1
+tpValue.Text = "0"
+tpValue.TextColor3 = Color3.fromRGB(100, 255, 150)
+tpValue.TextSize = 24
+tpValue.Font = Enum.Font.GothamBold
+tpValue.TextXAlignment = Enum.TextXAlignment.Left
+tpValue.Parent = playerInfo
+
+-- Stats section
+local statsFrame = Instance.new("Frame")
+statsFrame.Name = "Stats"
+statsFrame.Size = UDim2.new(1, -20, 0, 120)
+statsFrame.Position = UDim2.new(0, 10, 0, 120)
+statsFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+statsFrame.BorderSizePixel = 0
+statsFrame.Parent = sidebar
+
+local statsCorner = Instance.new("UICorner")
+statsCorner.CornerRadius = UDim.new(0, 8)
+statsCorner.Parent = statsFrame
+
+local statsTitle = Instance.new("TextLabel")
+statsTitle.Size = UDim2.new(1, -20, 0, 30)
+statsTitle.Position = UDim2.new(0, 10, 0, 5)
+statsTitle.BackgroundTransparency = 1
+statsTitle.Text = "📊 STATS"
+statsTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+statsTitle.TextSize = 14
+statsTitle.Font = Enum.Font.GothamBold
+statsTitle.TextXAlignment = Enum.TextXAlignment.Left
+statsTitle.Parent = statsFrame
+
+-- Total steals stat
+local stealsLabel = Instance.new("TextLabel")
+stealsLabel.Name = "StealsLabel"
+stealsLabel.Size = UDim2.new(1, -20, 0, 20)
+stealsLabel.Position = UDim2.new(0, 10, 0, 40)
+stealsLabel.BackgroundTransparency = 1
+stealsLabel.Text = "💰 Total Steals: 0"
+stealsLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+stealsLabel.TextSize = 12
+stealsLabel.Font = Enum.Font.Gotham
+stealsLabel.TextXAlignment = Enum.TextXAlignment.Left
+stealsLabel.Parent = statsFrame
+
+-- Earning rate stat
+local rateLabel = Instance.new("TextLabel")
+rateLabel.Name = "RateLabel"
+rateLabel.Size = UDim2.new(1, -20, 0, 20)
+rateLabel.Position = UDim2.new(0, 10, 0, 65)
+rateLabel.BackgroundTransparency = 1
+rateLabel.Text = "📈 Earning: 1.0 TP/s"
+rateLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+rateLabel.TextSize = 12
+rateLabel.Font = Enum.Font.Gotham
+rateLabel.TextXAlignment = Enum.TextXAlignment.Left
+rateLabel.Parent = statsFrame
+
+-- Zone stat
+local zoneLabel = Instance.new("TextLabel")
+zoneLabel.Name = "ZoneLabel"
+zoneLabel.Size = UDim2.new(1, -20, 0, 20)
+zoneLabel.Position = UDim2.new(0, 10, 0, 90)
+zoneLabel.BackgroundTransparency = 1
+zoneLabel.Text = "🌍 Zone: Starter"
+zoneLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+zoneLabel.TextSize = 12
+zoneLabel.Font = Enum.Font.Gotham
+zoneLabel.TextXAlignment = Enum.TextXAlignment.Left
+zoneLabel.Parent = statsFrame
+
+-- Day/Night indicator
+local dayNightFrame = Instance.new("Frame")
+dayNightFrame.Name = "DayNight"
+dayNightFrame.Size = UDim2.new(1, -20, 0, 45)
+dayNightFrame.Position = UDim2.new(0, 10, 0, 250)
+dayNightFrame.BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+dayNightFrame.BorderSizePixel = 0
+dayNightFrame.Parent = sidebar
 
 local dayNightCorner = Instance.new("UICorner")
-dayNightCorner.CornerRadius = UDim.new(0, 10)
-dayNightCorner.Parent = dayNightLabel
+dayNightCorner.CornerRadius = UDim.new(0, 8)
+dayNightCorner.Parent = dayNightFrame
 
--- ===== EVENT NOTIFICATION (Top Center) =====
-local eventNotification = Instance.new("TextLabel")
-eventNotification.Name = "EventNotification"
-eventNotification.Size = UDim2.new(0, 500, 0, 60)
-eventNotification.Position = UDim2.new(0.5, -250, 0, 60)
-eventNotification.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-eventNotification.BorderSizePixel = 0
-eventNotification.Text = ""
-eventNotification.TextColor3 = Color3.fromRGB(255, 255, 255)
-eventNotification.TextSize = 22
-eventNotification.Font = Enum.Font.GothamBold
-eventNotification.Visible = false
-eventNotification.Parent = screenGui
+local dayNightGradient = Instance.new("UIGradient")
+dayNightGradient.Color = ColorSequence.new(Color3.fromRGB(255, 220, 100), Color3.fromRGB(255, 180, 50))
+dayNightGradient.Rotation = 90
+dayNightGradient.Parent = dayNightFrame
 
-local eventCorner = Instance.new("UICorner")
-eventCorner.CornerRadius = UDim.new(0, 10)
-eventCorner.Parent = eventNotification
+local dayNightText = Instance.new("TextLabel")
+dayNightText.Name = "Text"
+dayNightText.Size = UDim2.new(1, 0, 1, 0)
+dayNightText.BackgroundTransparency = 1
+dayNightText.Text = "☀️ DAY"
+dayNightText.TextColor3 = Color3.fromRGB(255, 255, 255)
+dayNightText.TextSize = 20
+dayNightText.Font = Enum.Font.GothamBold
+dayNightText.TextStrokeTransparency = 0.5
+dayNightText.Parent = dayNightFrame
 
--- ===== UPGRADES PANEL (Left Side) =====
-local upgradesFrame = Instance.new("ScrollingFrame")
-upgradesFrame.Name = "UpgradesFrame"
-upgradesFrame.Size = UDim2.new(0, 300, 0, 400)
-upgradesFrame.Position = UDim2.new(0, 10, 0.5, -200)
-upgradesFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-upgradesFrame.BorderSizePixel = 0
-upgradesFrame.ScrollBarThickness = 8
-upgradesFrame.CanvasSize = UDim2.new(0, 0, 0, 600)
-upgradesFrame.Parent = screenGui
+-- ===== EVENT ICON (Bottom Left) =====
+local eventIcon = Instance.new("ImageButton")
+eventIcon.Name = "EventIcon"
+eventIcon.Size = UDim2.new(0, 80, 0, 80)
+eventIcon.Position = UDim2.new(0, 20, 1, -100)
+eventIcon.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+eventIcon.BorderSizePixel = 0
+eventIcon.Visible = false
+eventIcon.Image = ""  -- Will be set when event starts
+eventIcon.ScaleType = Enum.ScaleType.Fit
+eventIcon.Parent = screenGui
 
-local upgradesCorner = Instance.new("UICorner")
-upgradesCorner.CornerRadius = UDim.new(0, 10)
-upgradesCorner.Parent = upgradesFrame
+local eventIconCorner = Instance.new("UICorner")
+eventIconCorner.CornerRadius = UDim.new(0, 12)
+eventIconCorner.Parent = eventIcon
 
-local upgradesTitle = Instance.new("TextLabel")
-upgradesTitle.Name = "Title"
-upgradesTitle.Size = UDim2.new(1, -10, 0, 40)
-upgradesTitle.Position = UDim2.new(0, 5, 0, 5)
-upgradesTitle.BackgroundTransparency = 1
-upgradesTitle.Text = "📈 UPGRADES"
-upgradesTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-upgradesTitle.TextSize = 20
-upgradesTitle.Font = Enum.Font.GothamBold
-upgradesTitle.Parent = upgradesFrame
+local eventIconStroke = Instance.new("UIStroke")
+eventIconStroke.Color = Color3.fromRGB(255, 200, 0)
+eventIconStroke.Thickness = 3
+eventIconStroke.Parent = eventIcon
 
--- Create upgrade buttons
-local upgradeNames = {"SleepEfficiency", "TheftProtection", "ToolCapacity", "ScoreMultiplier"}
-local upgradeDisplayNames = {
-    SleepEfficiency = "Sleep Efficiency",
-    TheftProtection = "Theft Protection",
-    ToolCapacity = "Tool Capacity",
-    ScoreMultiplier = "Score Multiplier"
-}
+-- Event tooltip (shows on hover)
+local eventTooltip = Instance.new("Frame")
+eventTooltip.Name = "Tooltip"
+eventTooltip.Size = UDim2.new(0, 200, 0, 70)
+eventTooltip.Position = UDim2.new(0, 110, 1, -100)
+eventTooltip.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+eventTooltip.BorderSizePixel = 0
+eventTooltip.Visible = false
+eventTooltip.ZIndex = 10
+eventTooltip.Parent = screenGui
 
-local upgradeButtons = {}
-for i, upgradeName in ipairs(upgradeNames) do
-    local button = Instance.new("TextButton")
-    button.Name = upgradeName
-    button.Size = UDim2.new(1, -20, 0, 80)
-    button.Position = UDim2.new(0, 10, 0, 50 + (i - 1) * 90)
-    button.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    button.BorderSizePixel = 0
-    button.Text = ""
-    button.Parent = upgradesFrame
+local tooltipCorner = Instance.new("UICorner")
+tooltipCorner.CornerRadius = UDim.new(0, 8)
+tooltipCorner.Parent = eventTooltip
 
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(0, 8)
-    buttonCorner.Parent = button
+local tooltipStroke = Instance.new("UIStroke")
+tooltipStroke.Color = Color3.fromRGB(255, 200, 0)
+tooltipStroke.Thickness = 2
+tooltipStroke.Parent = eventTooltip
 
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, -10, 0, 25)
-    nameLabel.Position = UDim2.new(0, 5, 0, 5)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = upgradeDisplayNames[upgradeName]
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextSize = 16
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextXAlignment = Enum.TextXAlignment.Left
-    nameLabel.Parent = button
+local tooltipTitle = Instance.new("TextLabel")
+tooltipTitle.Name = "Title"
+tooltipTitle.Size = UDim2.new(1, -20, 0, 25)
+tooltipTitle.Position = UDim2.new(0, 10, 0, 5)
+tooltipTitle.BackgroundTransparency = 1
+tooltipTitle.Text = "Event Name"
+tooltipTitle.TextColor3 = Color3.fromRGB(255, 200, 0)
+tooltipTitle.TextSize = 16
+tooltipTitle.Font = Enum.Font.GothamBold
+tooltipTitle.TextXAlignment = Enum.TextXAlignment.Left
+tooltipTitle.Parent = eventTooltip
 
-    local levelLabel = Instance.new("TextLabel")
-    levelLabel.Name = "LevelLabel"
-    levelLabel.Size = UDim2.new(1, -10, 0, 20)
-    levelLabel.Position = UDim2.new(0, 5, 0, 30)
-    levelLabel.BackgroundTransparency = 1
-    levelLabel.Text = "Level: 0/10"
-    levelLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    levelLabel.TextSize = 14
-    levelLabel.Font = Enum.Font.Gotham
-    levelLabel.TextXAlignment = Enum.TextXAlignment.Left
-    levelLabel.Parent = button
+local tooltipMultiplier = Instance.new("TextLabel")
+tooltipMultiplier.Name = "Multiplier"
+tooltipMultiplier.Size = UDim2.new(1, -20, 0, 20)
+tooltipMultiplier.Position = UDim2.new(0, 10, 0, 30)
+tooltipMultiplier.BackgroundTransparency = 1
+tooltipMultiplier.Text = "⚡ 3x Multiplier"
+tooltipMultiplier.TextColor3 = Color3.fromRGB(200, 200, 200)
+tooltipMultiplier.TextSize = 13
+tooltipMultiplier.Font = Enum.Font.Gotham
+tooltipMultiplier.TextXAlignment = Enum.TextXAlignment.Left
+tooltipMultiplier.Parent = eventTooltip
 
-    local costLabel = Instance.new("TextLabel")
-    costLabel.Name = "CostLabel"
-    costLabel.Size = UDim2.new(1, -10, 0, 20)
-    costLabel.Position = UDim2.new(0, 5, 0, 55)
-    costLabel.BackgroundTransparency = 1
-    costLabel.Text = "Cost: 100 TP"
-    costLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-    costLabel.TextSize = 14
-    costLabel.Font = Enum.Font.GothamBold
-    costLabel.TextXAlignment = Enum.TextXAlignment.Left
-    costLabel.Parent = button
+local tooltipDuration = Instance.new("TextLabel")
+tooltipDuration.Name = "Duration"
+tooltipDuration.Size = UDim2.new(1, -20, 0, 20)
+tooltipDuration.Position = UDim2.new(0, 10, 0, 48)
+tooltipDuration.BackgroundTransparency = 1
+tooltipDuration.Text = "⏱️ 60s remaining"
+tooltipDuration.TextColor3 = Color3.fromRGB(200, 200, 200)
+tooltipDuration.TextSize = 13
+tooltipDuration.Font = Enum.Font.Gotham
+tooltipDuration.TextXAlignment = Enum.TextXAlignment.Left
+tooltipDuration.Parent = eventTooltip
 
-    upgradeButtons[upgradeName] = button
-end
+-- Hover detection for event icon
+eventIcon.MouseEnter:Connect(function()
+    eventTooltip.Visible = true
+    TweenService:Create(eventTooltip, TweenInfo.new(0.2), {
+        Size = UDim2.new(0, 220, 0, 75)
+    }):Play()
+end)
 
--- ===== TOOL SHOP BUTTON (Bottom Center) =====
-local toolShopButton = Instance.new("TextButton")
-toolShopButton.Name = "ToolShopButton"
-toolShopButton.Size = UDim2.new(0, 200, 0, 50)
-toolShopButton.Position = UDim2.new(0.5, -100, 1, -60)
-toolShopButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-toolShopButton.BorderSizePixel = 0
-toolShopButton.Text = "🔧 Buy Tool (500 TP)"
-toolShopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toolShopButton.TextSize = 18
-toolShopButton.Font = Enum.Font.GothamBold
-toolShopButton.Parent = screenGui
+eventIcon.MouseLeave:Connect(function()
+    TweenService:Create(eventTooltip, TweenInfo.new(0.2), {
+        Size = UDim2.new(0, 200, 0, 70)
+    }):Play()
+    task.wait(0.2)
+    eventTooltip.Visible = false
+end)
 
-local toolShopCorner = Instance.new("UICorner")
-toolShopCorner.CornerRadius = UDim.new(0, 10)
-toolShopCorner.Parent = toolShopButton
+-- ===== QUICK ACTIONS (Bottom Center) =====
+local quickActions = Instance.new("Frame")
+quickActions.Name = "QuickActions"
+quickActions.Size = UDim2.new(0, 400, 0, 60)
+quickActions.Position = UDim2.new(0.5, -200, 1, -70)
+quickActions.BackgroundTransparency = 1
+quickActions.Parent = screenGui
 
--- ===== ADMIN PANEL (Hidden by default) =====
+local actionsLayout = Instance.new("UIListLayout")
+actionsLayout.FillDirection = Enum.FillDirection.Horizontal
+actionsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+actionsLayout.Padding = UDim.new(0, 10)
+actionsLayout.Parent = quickActions
+
+-- Hub button
+local hubButton = Instance.new("TextButton")
+hubButton.Name = "HubButton"
+hubButton.Size = UDim2.new(0, 120, 0, 50)
+hubButton.BackgroundColor3 = Color3.fromRGB(75, 100, 200)
+hubButton.BorderSizePixel = 0
+hubButton.Text = "🏠 HUB"
+hubButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+hubButton.TextSize = 18
+hubButton.Font = Enum.Font.GothamBold
+hubButton.Parent = quickActions
+
+local hubCorner = Instance.new("UICorner")
+hubCorner.CornerRadius = UDim.new(0, 10)
+hubCorner.Parent = hubButton
+
+-- Shop button
+local shopButton = Instance.new("TextButton")
+shopButton.Name = "ShopButton"
+shopButton.Size = UDim2.new(0, 120, 0, 50)
+shopButton.BackgroundColor3 = Color3.fromRGB(200, 100, 50)
+shopButton.BorderSizePixel = 0
+shopButton.Text = "🛒 SHOP"
+shopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+shopButton.TextSize = 18
+shopButton.Font = Enum.Font.GothamBold
+shopButton.Parent = quickActions
+
+local shopCorner = Instance.new("UICorner")
+shopCorner.CornerRadius = UDim.new(0, 10)
+shopCorner.Parent = shopButton
+
+-- Zones button
+local zonesButton = Instance.new("TextButton")
+zonesButton.Name = "ZonesButton"
+zonesButton.Size = UDim2.new(0, 120, 0, 50)
+zonesButton.BackgroundColor3 = Color3.fromRGB(100, 200, 100)
+zonesButton.BorderSizePixel = 0
+zonesButton.Text = "🌍 ZONES"
+zonesButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+zonesButton.TextSize = 18
+zonesButton.Font = Enum.Font.GothamBold
+zonesButton.Parent = quickActions
+
+local zonesCorner = Instance.new("UICorner")
+zonesCorner.CornerRadius = UDim.new(0, 10)
+zonesCorner.Parent = zonesButton
+
+-- ===== ADMIN PANEL (F1 - Hidden by default) =====
 local adminPanel = Instance.new("Frame")
 adminPanel.Name = "AdminPanel"
-adminPanel.Size = UDim2.new(0, 400, 0, 500)
-adminPanel.Position = UDim2.new(0.5, -200, 0.5, -250)
-adminPanel.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-adminPanel.BorderSizePixel = 2
-adminPanel.BorderColor3 = Color3.fromRGB(255, 0, 0)
+adminPanel.Size = UDim2.new(0, 450, 0, 550)
+adminPanel.Position = UDim2.new(0.5, -225, 0.5, -275)
+adminPanel.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+adminPanel.BorderSizePixel = 0
 adminPanel.Visible = false
+adminPanel.ZIndex = 100
 adminPanel.Parent = screenGui
 
 local adminCorner = Instance.new("UICorner")
-adminCorner.CornerRadius = UDim.new(0, 10)
+adminCorner.CornerRadius = UDim.new(0, 15)
 adminCorner.Parent = adminPanel
 
-local adminTitle = Instance.new("TextLabel")
-adminTitle.Size = UDim2.new(1, 0, 0, 40)
+local adminStroke = Instance.new("UIStroke")
+adminStroke.Color = Color3.fromRGB(255, 0, 0)
+adminStroke.Thickness = 3
+adminStroke.Parent = adminPanel
+
+local adminTitle = Instance.new("Frame")
+adminTitle.Size = UDim2.new(1, 0, 0, 50)
 adminTitle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-adminTitle.Text = "👑 ADMIN PANEL"
-adminTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-adminTitle.TextSize = 22
-adminTitle.Font = Enum.Font.GothamBold
+adminTitle.BorderSizePixel = 0
 adminTitle.Parent = adminPanel
 
 local adminTitleCorner = Instance.new("UICorner")
-adminTitleCorner.CornerRadius = UDim.new(0, 10)
+adminTitleCorner.CornerRadius = UDim.new(0, 15)
 adminTitleCorner.Parent = adminTitle
+
+local adminTitleText = Instance.new("TextLabel")
+adminTitleText.Size = UDim2.new(1, 0, 1, 0)
+adminTitleText.BackgroundTransparency = 1
+adminTitleText.Text = "👑 ADMIN PANEL"
+adminTitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+adminTitleText.TextSize = 24
+adminTitleText.Font = Enum.Font.GothamBold
+adminTitleText.Parent = adminTitle
 
 local commandInput = Instance.new("TextBox")
 commandInput.Name = "CommandInput"
-commandInput.Size = UDim2.new(1, -20, 0, 40)
-commandInput.Position = UDim2.new(0, 10, 0, 50)
-commandInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+commandInput.Size = UDim2.new(1, -30, 0, 45)
+commandInput.Position = UDim2.new(0, 15, 0, 65)
+commandInput.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
 commandInput.BorderSizePixel = 0
-commandInput.PlaceholderText = "Enter command... (type Help for list)"
+commandInput.PlaceholderText = "Type command... (Help for list)"
 commandInput.Text = ""
 commandInput.TextColor3 = Color3.fromRGB(255, 255, 255)
 commandInput.TextSize = 16
@@ -232,37 +387,54 @@ commandInput.ClearTextOnFocus = false
 commandInput.Parent = adminPanel
 
 local commandCorner = Instance.new("UICorner")
-commandCorner.CornerRadius = UDim.new(0, 8)
+commandCorner.CornerRadius = UDim.new(0, 10)
 commandCorner.Parent = commandInput
 
 local outputScroll = Instance.new("ScrollingFrame")
 outputScroll.Name = "Output"
-outputScroll.Size = UDim2.new(1, -20, 1, -110)
-outputScroll.Position = UDim2.new(0, 10, 0, 100)
-outputScroll.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+outputScroll.Size = UDim2.new(1, -30, 1, -130)
+outputScroll.Position = UDim2.new(0, 15, 0, 120)
+outputScroll.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
 outputScroll.BorderSizePixel = 0
-outputScroll.ScrollBarThickness = 6
+outputScroll.ScrollBarThickness = 8
+outputScroll.ScrollBarImageColor3 = Color3.fromRGB(255, 0, 0)
 outputScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
 outputScroll.Parent = adminPanel
 
 local outputCorner = Instance.new("UICorner")
-outputCorner.CornerRadius = UDim.new(0, 8)
+outputCorner.CornerRadius = UDim.new(0, 10)
 outputCorner.Parent = outputScroll
 
 local outputLayout = Instance.new("UIListLayout")
 outputLayout.Padding = UDim.new(0, 5)
 outputLayout.Parent = outputScroll
 
+-- Toggle admin panel with F1
+UserInputService.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.F1 then
+        adminPanel.Visible = not adminPanel.Visible
+    end
+end)
+
 -- Store reference for client script
 _G.GameUI = {
-    scoreValue = scoreValue,
-    eventNotification = eventNotification,
-    dayNightLabel = dayNightLabel,
-    upgradeButtons = upgradeButtons,
-    toolShopButton = toolShopButton,
+    tpValue = tpValue,
+    stealsLabel = stealsLabel,
+    rateLabel = rateLabel,
+    zoneLabel = zoneLabel,
+    dayNightFrame = dayNightFrame,
+    dayNightText = dayNightText,
+    eventIcon = eventIcon,
+    eventTooltip = eventTooltip,
+    tooltipTitle = tooltipTitle,
+    tooltipMultiplier = tooltipMultiplier,
+    tooltipDuration = tooltipDuration,
+    hubButton = hubButton,
+    shopButton = shopButton,
+    zonesButton = zonesButton,
     adminPanel = adminPanel,
     commandInput = commandInput,
     outputScroll = outputScroll,
 }
 
-print("[MainUI] UI Created!")
+print("[MainUI] Professional sidebar UI created! 🎨")

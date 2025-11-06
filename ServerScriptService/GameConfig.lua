@@ -1,12 +1,18 @@
--- GameConfig.lua
--- Configuration module for the entire game
+--[[
+    GameConfig.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/GameConfig
+
+    Configuration module for the entire game
+    IMPORTANT: Update Admin User IDs before playing!
+]]
 
 local GameConfig = {}
 
--- Admin User IDs (replace with your and your GF's Roblox User IDs)
+-- Admin User IDs
 GameConfig.Admins = {
-    123456789,  -- Replace with your User ID
-    987654321,  -- Replace with your GF's User ID
+    5049861856,  -- UnboundAngel350
+    931881945,   -- Susie
 }
 
 -- Sleep System
@@ -126,10 +132,7 @@ GameConfig.Upgrades = {
 
 -- Map Generation
 GameConfig.Map = {
-    IslandCount = 5,
-    BedsPerIsland = 4,
-    IslandSpacing = 100,
-    IslandSize = 40,
+    BedCount = 30,  -- Total beds scattered on baseplate
 }
 
 return GameConfig

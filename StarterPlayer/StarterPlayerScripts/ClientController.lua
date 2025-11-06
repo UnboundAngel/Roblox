@@ -1,5 +1,11 @@
--- ClientController.lua
--- Handles client-side logic and UI updates
+--[[
+    ClientController.lua
+    SCRIPT TYPE: LocalScript (NOT Script or ModuleScript)
+    LOCATION: StarterPlayer/StarterPlayerScripts/ClientController
+
+    Handles client-side logic and UI updates
+    Listens to RemoteEvents from server
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,15 +27,19 @@ end)
 
 -- ===== DAY/NIGHT UPDATE =====
 local DayNightEvent = RemoteEvents:WaitForChild("DayNight")
+local TweenService = game:GetService("TweenService")
+
 DayNightEvent.OnClientEvent:Connect(function(isDay)
     if isDay then
-        UI.dayNightLabel.Text = "☀️ DAY"
-        UI.dayNightLabel.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
-        UI.dayNightLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+        UI.dayNightText.Text = "☀️ DAY"
+        TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+        }):Play()
     else
-        UI.dayNightLabel.Text = "🌙 NIGHT (2x)"
-        UI.dayNightLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-        UI.dayNightLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        UI.dayNightText.Text = "🌙 NIGHT (2x)"
+        TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+        }):Play()
     end
 end)
 
@@ -37,7 +47,7 @@ end)
 local EventNotificationEvent = RemoteEvents:WaitForChild("EventNotification")
 EventNotificationEvent.OnClientEvent:Connect(function(message, duration)
     if message ~= "" then
-        UI.eventNotification.Text = message
+        UI.eventText.Text = message
         UI.eventNotification.Visible = true
 
         -- Random color based on event

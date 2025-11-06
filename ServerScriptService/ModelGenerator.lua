@@ -1,5 +1,10 @@
--- ModelGenerator.lua
--- Generates all 3D models procedurally
+--[[
+    ModelGenerator.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/ModelGenerator
+
+    Generates all 3D models procedurally (beds, islands, tools, sky)
+]]
 
 local ModelGenerator = {}
 
