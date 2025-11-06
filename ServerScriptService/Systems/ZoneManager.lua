@@ -47,44 +47,107 @@ local ZoneMaterials = {
     ["Heaven Zone"] = {Material = Enum.Material.Neon},
 }
 
--- Create a zone area
+-- Create a zone area as an ISLAND with unique shape and elevation
 function ZoneManager.CreateZoneArea(zoneName, zoneConfig, position)
     local zoneFolder = Instance.new("Folder")
     zoneFolder.Name = zoneName
     zoneFolder.Parent = workspace
 
-    -- Create zone platform (MUCH larger)
+    -- Get themed material
+    local zoneMaterial = ZoneMaterials[zoneName]
+    local material = zoneMaterial and zoneMaterial.Material or Enum.Material.SmoothPlastic
+    local color = zoneConfig.Color
+
+    -- Create island main platform (where beds spawn)
     local platform = Instance.new("Part")
     platform.Name = "ZonePlatform"
-    platform.Size = Vector3.new(600, 3, 600)  -- Made MUCH bigger - 600x600
+    platform.Size = Vector3.new(120, 8, 120)  -- Spacious bed area
     platform.Position = position
     platform.Anchored = true
-
-    -- Apply themed material
-    local zoneMaterial = ZoneMaterials[zoneName]
-    if zoneMaterial then
-        platform.Material = zoneMaterial.Material
-        -- Keep color for zones that need it (Heaven/Space)
-        if zoneName == "Heaven Zone" or zoneName == "Space Zone" then
-            platform.Color = zoneConfig.Color
-        end
-    else
-        platform.Material = Enum.Material.SmoothPlastic
-        platform.Color = zoneConfig.Color
+    platform.Material = material
+    if zoneName == "Heaven Zone" or zoneName == "Space Zone" then
+        platform.Color = color
     end
-
     platform.TopSurface = Enum.SurfaceType.Smooth
     platform.BottomSurface = Enum.SurfaceType.Smooth
     platform.Parent = zoneFolder
 
-    -- Add subtle glow effect (not blinding)
-    local pointLight = Instance.new("PointLight")
-    pointLight.Brightness = 0.3  -- Even more subtle
-    pointLight.Range = 20  -- Smaller range
-    pointLight.Color = zoneConfig.Color
-    pointLight.Parent = platform
+    -- Create island foundation (larger base underneath)
+    local foundation = Instance.new("Part")
+    foundation.Name = "IslandFoundation"
+    foundation.Size = Vector3.new(140, 20, 140)
+    foundation.Position = position - Vector3.new(0, 14, 0)
+    foundation.Anchored = true
+    foundation.Material = material
+    foundation.Color = Color3.fromRGB(80, 60, 40)  -- Rocky earth color
+    foundation.TopSurface = Enum.SurfaceType.Smooth
+    foundation.BottomSurface = Enum.SurfaceType.Smooth
+    foundation.Parent = zoneFolder
 
-    -- NO BILLBOARD LABELS - they clutter the screen and hover everywhere
+    -- Add themed decorations to make each island unique
+    if zoneName == "Forest Zone" then
+        -- Add tree pillars
+        for i = 1, 5 do
+            local tree = Instance.new("Part")
+            tree.Size = Vector3.new(4, 15, 4)
+            tree.Position = position + Vector3.new(math.random(-40, 40), 11.5, math.random(-40, 40))
+            tree.Anchored = true
+            tree.Material = Enum.Material.Wood
+            tree.Color = Color3.fromRGB(101, 67, 33)
+            tree.Parent = zoneFolder
+        end
+    elseif zoneName == "Mountain Zone" then
+        -- Add rocky peaks
+        for i = 1, 3 do
+            local peak = Instance.new("Part")
+            peak.Size = Vector3.new(20, 25, 20)
+            peak.Position = position + Vector3.new(math.random(-35, 35), 16.5, math.random(-35, 35))
+            peak.Anchored = true
+            peak.Material = Enum.Material.Rock
+            peak.Color = Color3.fromRGB(120, 120, 120)
+            peak.Parent = zoneFolder
+        end
+    elseif zoneName == "Volcano Zone" then
+        -- Add lava pools
+        for i = 1, 3 do
+            local lava = Instance.new("Part")
+            lava.Size = Vector3.new(15, 1, 15)
+            lava.Position = position + Vector3.new(math.random(-40, 40), 4.5, math.random(-40, 40))
+            lava.Anchored = true
+            lava.Material = Enum.Material.Neon
+            lava.Color = Color3.fromRGB(255, 100, 0)
+            lava.Parent = zoneFolder
+        end
+    elseif zoneName == "Ice Zone" then
+        -- Add ice spikes
+        for i = 1, 4 do
+            local spike = Instance.new("Part")
+            spike.Size = Vector3.new(5, 18, 5)
+            spike.Position = position + Vector3.new(math.random(-40, 40), 13, math.random(-40, 40))
+            spike.Anchored = true
+            spike.Material = Enum.Material.Ice
+            spike.Transparency = 0.3
+            spike.Parent = zoneFolder
+        end
+    elseif zoneName == "Beach Zone" then
+        -- Add palm tree-like decorations
+        for i = 1, 3 do
+            local palm = Instance.new("Part")
+            palm.Size = Vector3.new(3, 12, 3)
+            palm.Position = position + Vector3.new(math.random(-45, 45), 10, math.random(-45, 45))
+            palm.Anchored = true
+            palm.Material = Enum.Material.Wood
+            palm.Color = Color3.fromRGB(139, 90, 43)
+            palm.Parent = zoneFolder
+        end
+    end
+
+    -- Add subtle glow
+    local pointLight = Instance.new("PointLight")
+    pointLight.Brightness = 0.3
+    pointLight.Range = 20
+    pointLight.Color = color
+    pointLight.Parent = platform
 
     -- Spawn beds if not hub
     if not zoneConfig.IsHub and zoneConfig.BedCount > 0 then
