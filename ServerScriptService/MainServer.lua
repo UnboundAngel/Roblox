@@ -74,6 +74,7 @@ local AutoSleeperSystem = require(SystemsFolder:WaitForChild("AutoSleeperSystem"
 local OfflineGenerationSystem = require(SystemsFolder:WaitForChild("OfflineGenerationSystem"))
 local RebirthSystem = require(SystemsFolder:WaitForChild("RebirthSystem"))
 local ZoneManager = require(SystemsFolder:WaitForChild("ZoneManager"))
+local AdminEventSystem = require(SystemsFolder:WaitForChild("AdminEventSystem"))
 
 print("[MainServer] Loaded all modules")
 
@@ -158,6 +159,9 @@ print("[MainServer] Started auto-sleeper system")
 
 RebirthSystem.Setup()
 print("[MainServer] Rebirth system ready")
+
+AdminEventSystem.Setup()
+print("[MainServer] Global admin events system ready (MessagingService)")
 
 -- Handle player joining
 Players.PlayerAdded:Connect(function(player)

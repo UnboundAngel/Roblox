@@ -409,13 +409,6 @@ local outputLayout = Instance.new("UIListLayout")
 outputLayout.Padding = UDim.new(0, 5)
 outputLayout.Parent = outputScroll
 
--- Toggle admin panel with F1
-UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.F1 then
-        adminPanel.Visible = not adminPanel.Visible
-    end
-end)
-
 -- Store reference for client script
 _G.GameUI = {
     tpValue = tpValue,
