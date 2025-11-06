@@ -74,6 +74,7 @@ local AutoSleeperSystem = require(SystemsFolder:WaitForChild("AutoSleeperSystem"
 local OfflineGenerationSystem = require(SystemsFolder:WaitForChild("OfflineGenerationSystem"))
 local RebirthSystem = require(SystemsFolder:WaitForChild("RebirthSystem"))
 local ZoneManager = require(SystemsFolder:WaitForChild("ZoneManager"))
+local AdminEventSystem = require(script.Parent:WaitForChild("AdminEventSystem"))
 
 print("[MainServer] Loaded all modules")
 
@@ -131,12 +132,12 @@ print("[MainServer] Setup all bed interactions")
 NPCManager.SpawnDefaultNPCs()
 
 -- Setup NPC interactions
-local toolMerchantNPC = NPCManager.GetNPC("🔧 Tool Merchant")
+local toolMerchantNPC = NPCManager.GetNPC("Tool Merchant")
 if toolMerchantNPC then
     ToolMerchant.Setup(toolMerchantNPC)
 end
 
-local upgradeMerchantNPC = NPCManager.GetNPC("⭐ Upgrade Master")
+local upgradeMerchantNPC = NPCManager.GetNPC("Upgrade Master")
 if upgradeMerchantNPC then
     UpgradeMerchant.Setup(upgradeMerchantNPC)
 end
@@ -158,6 +159,9 @@ print("[MainServer] Started auto-sleeper system")
 
 RebirthSystem.Setup()
 print("[MainServer] Rebirth system ready")
+
+AdminEventSystem.Setup()
+print("[MainServer] Global admin events system ready (MessagingService)")
 
 -- Handle player joining
 Players.PlayerAdded:Connect(function(player)

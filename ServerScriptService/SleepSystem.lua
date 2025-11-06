@@ -61,6 +61,12 @@ local function OnBedActivated(player, bed)
                 if face then
                     face.Transparency = 0
                 end
+
+                -- Remove sleeping Zs particle emitter
+                local zEmitter = head:FindFirstChild("SleepingZs")
+                if zEmitter then
+                    zEmitter:Destroy()
+                end
             end
         end
     else
@@ -113,6 +119,31 @@ local function OnBedActivated(player, bed)
                         part.Transparency = 0.3
                     end
                 end
+
+                -- Add floating Zs above head
+                local head = player.Character:FindFirstChild("Head")
+                if head then
+                    -- Remove existing Z emitter if any
+                    local existingZ = head:FindFirstChild("SleepingZs")
+                    if existingZ then
+                        existingZ:Destroy()
+                    end
+
+                    local zEmitter = Instance.new("ParticleEmitter")
+                    zEmitter.Name = "SleepingZs"
+                    zEmitter.Texture = "rbxasset://textures/particles/smoke_main.dds"  -- Will show as white particles
+                    zEmitter.Rate = 2
+                    zEmitter.Lifetime = NumberRange.new(2, 3)
+                    zEmitter.Speed = NumberRange.new(0.5, 1)
+                    zEmitter.SpreadAngle = Vector2.new(10, 10)
+                    zEmitter.VelocityInheritance = 0
+                    zEmitter.Acceleration = Vector3.new(0, 1, 0)  -- Float upward
+                    zEmitter.Size = NumberSequence.new(0.5, 0)
+                    zEmitter.Transparency = NumberSequence.new(0, 1)
+                    zEmitter.Color = ColorSequence.new(Color3.fromRGB(200, 200, 255))
+                    zEmitter.ZOffset = 2
+                    zEmitter.Parent = head
+                end
             end
         end
 
@@ -141,6 +172,22 @@ local function OnBedActivated(player, bed)
                         for _, part in pairs(player.Character:GetChildren()) do
                             if part:IsA("BasePart") then
                                 part.Transparency = 0
+                            end
+                        end
+
+                        -- Restore head and face, remove Zs
+                        local head = player.Character:FindFirstChild("Head")
+                        if head then
+                            head.Transparency = 0
+                            local face = head:FindFirstChild("face")
+                            if face then
+                                face.Transparency = 0
+                            end
+
+                            -- Remove sleeping Zs particle emitter
+                            local zEmitter = head:FindFirstChild("SleepingZs")
+                            if zEmitter then
+                                zEmitter:Destroy()
                             end
                         end
                     end
@@ -200,7 +247,8 @@ end
 -- Set up all beds in workspace
 function SleepSystem.SetupBeds()
     for _, bed in ipairs(game.Workspace:GetDescendants()) do
-        if bed:IsA("Model") and bed.Name == "Bed" then
+        -- Check if it's a bed model (either named "Bed" or contains "_Bed_")
+        if bed:IsA("Model") and (bed.Name == "Bed" or bed.Name:find("_Bed_")) then
             local mattress = bed:FindFirstChild("Mattress")
             if mattress then
                 local prompt = mattress:FindFirstChild("ProximityPrompt")
@@ -208,6 +256,7 @@ function SleepSystem.SetupBeds()
                     prompt.Triggered:Connect(function(player)
                         OnBedActivated(player, bed)
                     end)
+                    print("[SleepSystem] Connected bed:", bed.Name)
                 end
             end
         end
@@ -248,6 +297,12 @@ function SleepSystem.WakePlayer(player)
                 local face = head:FindFirstChild("face")
                 if face then
                     face.Transparency = 0
+                end
+
+                -- Remove sleeping Zs particle emitter
+                local zEmitter = head:FindFirstChild("SleepingZs")
+                if zEmitter then
+                    zEmitter:Destroy()
                 end
             end
         end

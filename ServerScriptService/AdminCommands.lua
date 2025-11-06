@@ -15,6 +15,7 @@ local ToolSystem = require(script.Parent.ToolSystem)
 local SleepSystem = require(script.Parent.SleepSystem)
 local RandomEvents = require(script.Parent.RandomEvents)
 local BedManager = require(script.Parent.BedManager)
+local AdminEventSystem = require(script.Parent.AdminEventSystem)
 
 local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
 local AdminCommandEvent = RemoteEvents:WaitForChild("AdminCommand")
@@ -154,6 +155,20 @@ local Commands = {
         return "Broadcasted: " .. message
     end,
 
+    -- Trigger GLOBAL event (across all servers)
+    GlobalEvent = function(admin, eventName)
+        if not eventName then
+            return "Usage: GlobalEvent <event name>"
+        end
+        local success, message = AdminEventSystem.TriggerGlobalEvent(eventName, admin)
+        return message
+    end,
+
+    -- List available global events
+    ListGlobalEvents = function(admin)
+        return AdminEventSystem.ListEvents()
+    end,
+
     -- List all commands
     Help = function(admin)
         return [[
@@ -166,6 +181,8 @@ ADMIN COMMANDS:
 - WakeAll
 - GodMode [player]
 - TriggerEvent <event name>
+- GlobalEvent <event name> (ALL SERVERS!)
+- ListGlobalEvents
 - RandomizeBeds
 - TeleportTo <player>
 - Bring <player>
