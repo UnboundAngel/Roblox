@@ -54,28 +54,44 @@ local AdminCommands = require(script.Parent.AdminCommands)
 print("[MainServer] Loaded all modules")
 
 -- Setup lighting
-Lighting.ClockTime = 14
+Lighting.ClockTime = 12
 Lighting.Brightness = 2
 Lighting.OutdoorAmbient = GameConfig.DayNight.DayAmbient
 Lighting.Ambient = GameConfig.DayNight.DayAmbient
-
--- Add sky
-local sky = ModelGenerator.CreateSky()
-sky.Parent = Lighting
+Lighting.GlobalShadows = true
 
 print("[MainServer] Setup lighting")
 
 -- Find baseplate and spawn beds
 print("[MainServer] Setting up game on baseplate...")
 
--- Find baseplate in workspace
-local baseplate = game.Workspace:FindFirstChild("Baseplate") or game.Workspace:FindFirstChild("Base")
+-- Find baseplate in workspace (search for large flat Part)
+local baseplate = nil
+for _, obj in ipairs(game.Workspace:GetChildren()) do
+    if obj:IsA("Part") and obj.Size.Y < 10 and (obj.Size.X > 100 or obj.Size.Z > 100) then
+        baseplate = obj
+        print("[MainServer] Found baseplate:", obj.Name, "Size:", obj.Size)
+        break
+    end
+end
 
 if not baseplate then
-    warn("[MainServer] No Baseplate found! Creating default spawn...")
-    local spawnPlatform = ModelGenerator.CreateSpawnPlatform()
-    spawnPlatform.Parent = game.Workspace
-    baseplate = spawnPlatform
+    baseplate = game.Workspace:FindFirstChild("Baseplate") or game.Workspace:FindFirstChild("Base")
+end
+
+if not baseplate then
+    warn("[MainServer] No Baseplate found! Creating default 512x512 baseplate...")
+    baseplate = Instance.new("Part")
+    baseplate.Name = "Baseplate"
+    baseplate.Size = Vector3.new(512, 2, 512)
+    baseplate.Position = Vector3.new(0, 0, 0)
+    baseplate.Anchored = true
+    baseplate.Color = Color3.fromRGB(100, 100, 100)
+    baseplate.Material = Enum.Material.Slate
+    baseplate.TopSurface = Enum.SurfaceType.Smooth
+    baseplate.BottomSurface = Enum.SurfaceType.Smooth
+    baseplate.Parent = game.Workspace
+    print("[MainServer] Created new baseplate")
 end
 
 -- Spawn beds scattered on baseplate

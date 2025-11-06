@@ -9,10 +9,10 @@
 
 local GameConfig = {}
 
--- Admin User IDs (replace with your and your GF's Roblox User IDs)
+-- Admin User IDs
 GameConfig.Admins = {
-    123456789,  -- Replace with your User ID
-    987654321,  -- Replace with your GF's User ID
+    5049861856,  -- UnboundAngel350
+    931881945,   -- Susie
 }
 
 -- Sleep System
