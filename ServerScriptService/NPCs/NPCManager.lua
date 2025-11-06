@@ -16,11 +16,11 @@ local function CreateBasicNPC(name, position, color)
     local npc = Instance.new("Model")
     npc.Name = name
 
-    -- Create humanoid parts
+    -- Create humanoid parts (position them ABOVE ground, not IN ground)
     local torso = Instance.new("Part")
     torso.Name = "Torso"
     torso.Size = Vector3.new(2, 2, 1)
-    torso.Position = position
+    torso.Position = position + Vector3.new(0, 1, 0)  -- Lifted above ground
     torso.Anchored = true
     torso.BrickColor = color or BrickColor.new("Bright blue")
     torso.Material = Enum.Material.SmoothPlastic
@@ -29,7 +29,7 @@ local function CreateBasicNPC(name, position, color)
     local head = Instance.new("Part")
     head.Name = "Head"
     head.Size = Vector3.new(2, 1, 1)
-    head.Position = position + Vector3.new(0, 1.5, 0)
+    head.Position = position + Vector3.new(0, 2.5, 0)  -- Head above torso
     head.Anchored = true
     head.BrickColor = color or BrickColor.new("Bright blue")
     head.Material = Enum.Material.SmoothPlastic

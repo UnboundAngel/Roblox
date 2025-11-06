@@ -59,22 +59,35 @@ dayNightTimer.Font = Enum.Font.Gotham
 dayNightTimer.TextStrokeTransparency = 0.5
 dayNightTimer.Parent = dayNightFrame
 
--- ===== TOP LEFT: CURRENCY =====
+-- ===== LEFT SIDE COLUMN: CURRENCY + BUTTONS =====
+local leftColumn = Instance.new("Frame")
+leftColumn.Name = "LeftColumn"
+leftColumn.Size = UDim2.new(0, 60, 0, 250)
+leftColumn.Position = UDim2.new(0, 10, 0.5, -125)  -- Vertically centered
+leftColumn.BackgroundTransparency = 1
+leftColumn.Parent = screenGui
+
+local columnLayout = Instance.new("UIListLayout")
+columnLayout.FillDirection = Enum.FillDirection.Vertical
+columnLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+columnLayout.Padding = UDim.new(0, 10)
+columnLayout.Parent = leftColumn
+
+-- Currency display (NOW IN LEFT COLUMN)
 local currencyFrame = Instance.new("Frame")
 currencyFrame.Name = "Currency"
-currencyFrame.Size = UDim2.new(0, 150, 0, 40)
-currencyFrame.Position = UDim2.new(0, 10, 0, 10)
+currencyFrame.Size = UDim2.new(0, 60, 0, 60)
 currencyFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
 currencyFrame.BorderSizePixel = 0
-currencyFrame.Parent = screenGui
+currencyFrame.Parent = leftColumn
 
 local currencyCorner = Instance.new("UICorner")
-currencyCorner.CornerRadius = UDim.new(0, 20)
+currencyCorner.CornerRadius = UDim.new(0.3, 0)
 currencyCorner.Parent = currencyFrame
 
 local currencyIcon = Instance.new("TextLabel")
-currencyIcon.Size = UDim2.new(0, 30, 0, 30)
-currencyIcon.Position = UDim2.new(0, 5, 0, 5)
+currencyIcon.Size = UDim2.new(1, 0, 0.5, 0)
+currencyIcon.Position = UDim2.new(0, 0, 0, 0)
 currencyIcon.BackgroundTransparency = 1
 currencyIcon.Text = "⭐"
 currencyIcon.TextSize = 24
@@ -82,29 +95,14 @@ currencyIcon.Parent = currencyFrame
 
 local tpValue = Instance.new("TextLabel")
 tpValue.Name = "TPValue"
-tpValue.Size = UDim2.new(1, -40, 1, 0)
-tpValue.Position = UDim2.new(0, 40, 0, 0)
+tpValue.Size = UDim2.new(1, 0, 0.5, 0)
+tpValue.Position = UDim2.new(0, 0, 0.5, 0)
 tpValue.BackgroundTransparency = 1
 tpValue.Text = "0"
 tpValue.TextColor3 = Color3.fromRGB(255, 255, 255)
-tpValue.TextSize = 18
+tpValue.TextSize = 14
 tpValue.Font = Enum.Font.GothamBold
-tpValue.TextXAlignment = Enum.TextXAlignment.Left
 tpValue.Parent = currencyFrame
-
--- ===== MIDDLE LEFT: ACTION BUTTONS =====
-local leftButtons = Instance.new("Frame")
-leftButtons.Name = "LeftButtons"
-leftButtons.Size = UDim2.new(0, 60, 0, 300)
-leftButtons.Position = UDim2.new(0, 10, 0.5, -150)  -- Centered vertically
-leftButtons.BackgroundTransparency = 1
-leftButtons.Parent = screenGui
-
-local buttonLayout = Instance.new("UIListLayout")
-buttonLayout.FillDirection = Enum.FillDirection.Vertical
-buttonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-buttonLayout.Padding = UDim.new(0, 10)
-buttonLayout.Parent = leftButtons
 
 -- Function to create circular button
 local function CreateCircleButton(name, icon, color)
@@ -113,7 +111,7 @@ local function CreateCircleButton(name, icon, color)
     button.Size = UDim2.new(0, 50, 0, 50)
     button.BackgroundColor3 = color
     button.BorderSizePixel = 0
-    button.Parent = leftButtons
+    button.Parent = leftColumn
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(1, 0)
@@ -138,7 +136,7 @@ local zonesButton = CreateCircleButton("ZonesButton", "🌍", Color3.fromRGB(100
 local eventFrame = Instance.new("Frame")
 eventFrame.Name = "EventFrame"
 eventFrame.Size = UDim2.new(0, 250, 0, 80)
-eventFrame.Position = UDim2.new(1, -260, 1, -160)  -- Moved up to make room for next event timer
+eventFrame.Position = UDim2.new(1, -260, 1, -160)
 eventFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
 eventFrame.BorderSizePixel = 0
 eventFrame.Visible = false
@@ -322,4 +320,4 @@ _G.GameUI = {
     outputScroll = outputScroll,
 }
 
-print("[MainUI] Minimal UI created!")
+print("[MainUI] Minimal UI created - currency now in left column!")
