@@ -132,12 +132,12 @@ print("[MainServer] Setup all bed interactions")
 NPCManager.SpawnDefaultNPCs()
 
 -- Setup NPC interactions
-local toolMerchantNPC = NPCManager.GetNPC("🔧 Tool Merchant")
+local toolMerchantNPC = NPCManager.GetNPC("Tool Merchant")
 if toolMerchantNPC then
     ToolMerchant.Setup(toolMerchantNPC)
 end
 
-local upgradeMerchantNPC = NPCManager.GetNPC("⭐ Upgrade Master")
+local upgradeMerchantNPC = NPCManager.GetNPC("Upgrade Master")
 if upgradeMerchantNPC then
     UpgradeMerchant.Setup(upgradeMerchantNPC)
 end

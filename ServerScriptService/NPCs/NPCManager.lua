@@ -122,7 +122,7 @@ end
 function NPCManager.SpawnDefaultNPCs()
     -- Tool Merchant (near spawn/starter zone)
     NPCManager.SpawnNPC(
-        "=' Tool Merchant",
+        "Tool Merchant",
         Vector3.new(20, 5, 20),
         BrickColor.new("Bright orange"),
         "Buy Tools",
@@ -131,7 +131,7 @@ function NPCManager.SpawnDefaultNPCs()
 
     -- Upgrade Merchant (in hub - will be repositioned by HubZone)
     NPCManager.SpawnNPC(
-        "P Upgrade Master",
+        "Upgrade Master",
         Vector3.new(100, 5, 100),
         BrickColor.new("Bright violet"),
         "Upgrades",

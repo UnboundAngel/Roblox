@@ -140,6 +140,10 @@ local currentUpgrades = {
 
 -- Update upgrade buttons
 local function UpdateUpgradeButtons()
+    if not UI.upgradeButtons then
+        return
+    end
+
     for upgradeName, button in pairs(UI.upgradeButtons) do
         local config = UpgradesConfig[upgradeName]
         local currentLevel = currentUpgrades[upgradeName]
@@ -195,24 +199,32 @@ end)
 -- ===== ADMIN PANEL =====
 local AdminCommandEvent = RemoteEvents:WaitForChild("AdminCommand")
 
--- Toggle admin panel with F1
+-- Toggle admin panel with F5
 UserInputService.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.F1 then
-        UI.adminPanel.Visible = not UI.adminPanel.Visible
+    if not processed and input.KeyCode == Enum.KeyCode.F5 then
+        if UI.adminPanel then
+            UI.adminPanel.Visible = not UI.adminPanel.Visible
+        end
     end
 end)
 
 -- Handle command input
-UI.commandInput.FocusLost:Connect(function(enterPressed)
-    if enterPressed and UI.commandInput.Text ~= "" then
-        local command = UI.commandInput.Text
-        AdminCommandEvent:FireServer(command)
-        UI.commandInput.Text = ""
-    end
-end)
+if UI.commandInput then
+    UI.commandInput.FocusLost:Connect(function(enterPressed)
+        if enterPressed and UI.commandInput.Text ~= "" then
+            local command = UI.commandInput.Text
+            AdminCommandEvent:FireServer(command)
+            UI.commandInput.Text = ""
+        end
+    end)
+end
 
 -- Display command output
 AdminCommandEvent.OnClientEvent:Connect(function(result)
+    if not UI.outputScroll then
+        return
+    end
+
     local outputLabel = Instance.new("TextLabel")
     outputLabel.Size = UDim2.new(1, -10, 0, 0)
     outputLabel.BackgroundTransparency = 1
@@ -229,8 +241,11 @@ AdminCommandEvent.OnClientEvent:Connect(function(result)
     outputLabel.Size = UDim2.new(1, -10, 0, outputLabel.TextBounds.Y + 5)
 
     -- Update canvas size
-    UI.outputScroll.CanvasSize = UDim2.new(0, 0, 0, UI.outputScroll.UIListLayout.AbsoluteContentSize.Y + 10)
-    UI.outputScroll.CanvasPosition = Vector2.new(0, UI.outputScroll.CanvasSize.Y.Offset)
+    local layout = UI.outputScroll:FindFirstChildOfClass("UIListLayout")
+    if layout then
+        UI.outputScroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+        UI.outputScroll.CanvasPosition = Vector2.new(0, UI.outputScroll.CanvasSize.Y.Offset)
+    end
 end)
 
 print("[ClientController] Client controller initialized!")

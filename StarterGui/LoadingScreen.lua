@@ -127,8 +127,12 @@ task.spawn(function()
 end)
 
 -- Wait for game ready (or timeout after 15 seconds)
-local readyConnection
-readyConnection = gameReadyEvent.OnClientEvent:Connect(function()
+-- Function to complete loading
+local function CompleteLoading()
+    if loadingComplete then
+        return
+    end
+
     loadingComplete = true
     loadingLabel.Text = "Ready!"
 
@@ -157,15 +161,25 @@ readyConnection = gameReadyEvent.OnClientEvent:Connect(function()
     end
 
     task.wait(1)
-    loadingGui:Destroy()
-    readyConnection:Disconnect()
+    if loadingGui then
+        loadingGui:Destroy()
+    end
+    if readyConnection then
+        readyConnection:Disconnect()
+    end
+end
+
+-- Listen for game ready event
+local readyConnection
+readyConnection = gameReadyEvent.OnClientEvent:Connect(function()
+    CompleteLoading()
 end)
 
--- Timeout fallback
+-- Timeout fallback (force complete after 15 seconds)
 task.delay(15, function()
     if not loadingComplete then
         warn("[LoadingScreen] Timeout - forcing load complete")
-        gameReadyEvent:FireClient(player)
+        CompleteLoading()
     end
 end)
 
