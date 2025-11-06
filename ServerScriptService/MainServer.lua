@@ -68,6 +68,13 @@ local NPCManager = require(NPCFolder:WaitForChild("NPCManager"))
 local ToolMerchant = require(NPCFolder:WaitForChild("ToolMerchant"))
 local UpgradeMerchant = require(NPCFolder:WaitForChild("UpgradeMerchant"))
 
+-- Load Systems modules
+local SystemsFolder = script.Parent:WaitForChild("Systems")
+local AutoSleeperSystem = require(SystemsFolder:WaitForChild("AutoSleeperSystem"))
+local OfflineGenerationSystem = require(SystemsFolder:WaitForChild("OfflineGenerationSystem"))
+local RebirthSystem = require(SystemsFolder:WaitForChild("RebirthSystem"))
+local ZoneManager = require(SystemsFolder:WaitForChild("ZoneManager"))
+
 print("[MainServer] Loaded all modules")
 
 -- Setup lighting
@@ -111,13 +118,12 @@ if not baseplate then
     print("[MainServer] Created new baseplate")
 end
 
--- Spawn beds scattered on baseplate
-local bedCount = GameConfig.Map.BedCount or 30  -- Default 30 beds
-BedManager.SpawnBedsOnBaseplate(baseplate, bedCount)
+-- Initialize zones (this will create zone platforms and spawn beds)
+ZoneManager.InitializeZones()
+ZoneManager.Setup()
+print("[MainServer] Zones initialized!")
 
-print("[MainServer] Baseplate setup complete!")
-
--- Setup beds
+-- Setup beds (for any remaining beds on baseplate)
 SleepSystem.SetupBeds()
 print("[MainServer] Setup all bed interactions")
 
@@ -147,9 +153,19 @@ print("[MainServer] Started day/night cycle")
 RandomEvents.Start()
 print("[MainServer] Started random events system")
 
+AutoSleeperSystem.Start()
+print("[MainServer] Started auto-sleeper system")
+
+RebirthSystem.Setup()
+print("[MainServer] Rebirth system ready")
+
 -- Handle player joining
 Players.PlayerAdded:Connect(function(player)
     PlayerDataManager.InitPlayer(player)
+
+    -- Calculate offline earnings
+    task.wait(1)
+    OfflineGenerationSystem.OnPlayerJoin(player)
 
     -- Give starting tool to admins
     if table.find(GameConfig.Admins, player.UserId) then
