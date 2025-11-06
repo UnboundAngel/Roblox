@@ -10,6 +10,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
@@ -21,6 +22,14 @@ repeat task.wait() until _G.GameUI
 
 local UI = _G.GameUI
 
+-- Day/Night cycle tracking
+local dayNightDuration = 300  -- 5 minutes (will be updated by server)
+local dayNightElapsed = 0
+local isDay = true
+
+-- Next event tracking
+local nextEventTime = 300  -- Will be randomized
+
 -- ===== SCORE UPDATE =====
 local UpdateScoreEvent = RemoteEvents:WaitForChild("UpdateScore")
 UpdateScoreEvent.OnClientEvent:Connect(function(newScore)
@@ -29,9 +38,11 @@ end)
 
 -- ===== DAY/NIGHT UPDATE =====
 local DayNightEvent = RemoteEvents:WaitForChild("DayNight")
-local TweenService = game:GetService("TweenService")
 
-DayNightEvent.OnClientEvent:Connect(function(isDay)
+DayNightEvent.OnClientEvent:Connect(function(isDayNow)
+    isDay = isDayNow
+    dayNightElapsed = 0  -- Reset countdown
+
     if UI.dayNightText then
         if isDay then
             UI.dayNightText.Text = "☀️ DAY"
@@ -53,6 +64,42 @@ DayNightEvent.OnClientEvent:Connect(function(isDay)
     end
 end)
 
+-- Update day/night timer every second
+task.spawn(function()
+    while true do
+        task.wait(1)
+        dayNightElapsed = dayNightElapsed + 1
+
+        local remaining = dayNightDuration - dayNightElapsed
+        if remaining < 0 then remaining = 0 end
+
+        local minutes = math.floor(remaining / 60)
+        local seconds = remaining % 60
+
+        if UI.dayNightTimer then
+            UI.dayNightTimer.Text = string.format("%d:%02d", minutes, seconds)
+        end
+    end
+end)
+
+-- Update next event timer
+task.spawn(function()
+    while true do
+        task.wait(1)
+        nextEventTime = nextEventTime - 1
+        if nextEventTime < 0 then
+            nextEventTime = math.random(300, 900)  -- 5-15 minutes
+        end
+
+        local minutes = math.floor(nextEventTime / 60)
+        local seconds = nextEventTime % 60
+
+        if UI.nextEventTimer then
+            UI.nextEventTimer.Text = string.format("%d:%02d", minutes, seconds)
+        end
+    end
+end)
+
 -- ===== EVENT NOTIFICATION =====
 local EventNotificationEvent = RemoteEvents:WaitForChild("EventNotification")
 local currentEventName = nil
@@ -61,6 +108,9 @@ EventNotificationEvent.OnClientEvent:Connect(function(message, duration, eventNa
     if message ~= "" and eventName then
         -- Store current event data
         currentEventName = eventName
+
+        -- Reset next event timer when event starts
+        nextEventTime = math.random(300, 900)
 
         -- Show event frame
         if UI.eventFrame then
@@ -131,6 +181,31 @@ UserInputService.InputBegan:Connect(function(input, processed)
     if not processed and input.KeyCode == Enum.KeyCode.F5 then
         if UI.adminPanel then
             UI.adminPanel.Visible = not UI.adminPanel.Visible
+
+            -- Add welcome message when opening
+            if UI.adminPanel.Visible and UI.outputScroll then
+                -- Check if it's empty
+                if #UI.outputScroll:GetChildren() <= 1 then  -- Only UIListLayout
+                    local welcomeLabel = Instance.new("TextLabel")
+                    welcomeLabel.Size = UDim2.new(1, -10, 0, 0)
+                    welcomeLabel.BackgroundTransparency = 1
+                    welcomeLabel.Text = "> Welcome to Admin Panel! Type 'Help' for command list."
+                    welcomeLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+                    welcomeLabel.TextSize = 14
+                    welcomeLabel.Font = Enum.Font.Code
+                    welcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
+                    welcomeLabel.TextYAlignment = Enum.TextYAlignment.Top
+                    welcomeLabel.TextWrapped = true
+                    welcomeLabel.Parent = UI.outputScroll
+
+                    welcomeLabel.Size = UDim2.new(1, -10, 0, welcomeLabel.TextBounds.Y + 5)
+
+                    local layout = UI.outputScroll:FindFirstChildOfClass("UIListLayout")
+                    if layout then
+                        UI.outputScroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+                    end
+                end
+            end
         end
     end
 end)

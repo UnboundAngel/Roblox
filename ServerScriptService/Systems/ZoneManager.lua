@@ -53,10 +53,10 @@ function ZoneManager.CreateZoneArea(zoneName, zoneConfig, position)
     zoneFolder.Name = zoneName
     zoneFolder.Parent = workspace
 
-    -- Create zone platform (much larger)
+    -- Create zone platform (MUCH larger)
     local platform = Instance.new("Part")
     platform.Name = "ZonePlatform"
-    platform.Size = Vector3.new(250, 3, 250)  -- Made much bigger
+    platform.Size = Vector3.new(600, 3, 600)  -- Made MUCH bigger - 600x600
     platform.Position = position
     platform.Anchored = true
 
@@ -79,38 +79,12 @@ function ZoneManager.CreateZoneArea(zoneName, zoneConfig, position)
 
     -- Add subtle glow effect (not blinding)
     local pointLight = Instance.new("PointLight")
-    pointLight.Brightness = 0.5  -- Reduced brightness
-    pointLight.Range = 30  -- Reduced range
+    pointLight.Brightness = 0.3  -- Even more subtle
+    pointLight.Range = 20  -- Smaller range
     pointLight.Color = zoneConfig.Color
     pointLight.Parent = platform
 
-    -- Create zone label
-    local billboardGui = Instance.new("BillboardGui")
-    billboardGui.Size = UDim2.new(0, 300, 0, 100)
-    billboardGui.StudsOffset = Vector3.new(0, 8, 0)
-    billboardGui.AlwaysOnTop = true
-    billboardGui.Parent = platform
-
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Size = UDim2.new(1, 0, 0.5, 0)
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Text = zoneName
-    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    nameLabel.TextScaled = true
-    nameLabel.Font = Enum.Font.GothamBold
-    nameLabel.TextStrokeTransparency = 0
-    nameLabel.Parent = billboardGui
-
-    local descLabel = Instance.new("TextLabel")
-    descLabel.Size = UDim2.new(1, 0, 0.5, 0)
-    descLabel.Position = UDim2.new(0, 0, 0.5, 0)
-    descLabel.BackgroundTransparency = 1
-    descLabel.Text = zoneConfig.Description
-    descLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    descLabel.TextSize = 18
-    descLabel.Font = Enum.Font.Gotham
-    descLabel.TextStrokeTransparency = 0
-    descLabel.Parent = billboardGui
+    -- NO BILLBOARD LABELS - they clutter the screen and hover everywhere
 
     -- Spawn beds if not hub
     if not zoneConfig.IsHub and zoneConfig.BedCount > 0 then

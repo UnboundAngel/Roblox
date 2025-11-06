@@ -125,26 +125,36 @@ function BedManager.SpawnBedsInArea(platform, bedCount, zoneName, multiplier)
     local platformSize = platform.Size
     local platformPos = platform.Position
 
-    -- Spawn area slightly smaller than platform
-    local spawnAreaX = platformSize.X * 0.8
-    local spawnAreaZ = platformSize.Z * 0.8
+    -- Use grid-based placement to avoid overlap
+    -- Beds are about 12x10 studs, add spacing
+    local bedSpacing = 15  -- Spacing between beds
+    local cols = math.floor(math.sqrt(bedCount))
+    local rows = math.ceil(bedCount / cols)
 
-    for i = 1, bedCount do
-        -- Get random mutation
-        local mutation = GetRandomMutation()
+    local startX = -(cols * bedSpacing) / 2
+    local startZ = -(rows * bedSpacing) / 2
 
-        -- Apply zone multiplier boost
-        local finalMultiplier = mutation.Multiplier * (multiplier or 1.0)
+    local bedIndex = 0
+    for row = 0, rows - 1 do
+        for col = 0, cols - 1 do
+            bedIndex = bedIndex + 1
+            if bedIndex > bedCount then break end
 
-        -- Random position on platform
-        local randomX = math.random(-spawnAreaX/2, spawnAreaX/2)
-        local randomZ = math.random(-spawnAreaZ/2, spawnAreaZ/2)
-        -- Spawn right on top of platform (platform Y + half height + 0.5 for bed legs)
-        local spawnY = platformPos.Y + (platformSize.Y / 2) + 0.5
+            -- Get random mutation
+            local mutation = GetRandomMutation()
 
-        -- Create bed using ModelGenerator
-        local bedPosition = Vector3.new(platformPos.X + randomX, spawnY, platformPos.Z + randomZ)
-        local bed = ModelGenerator.CreateBed(bedPosition, mutation)
+            -- Apply zone multiplier boost
+            local finalMultiplier = mutation.Multiplier * (multiplier or 1.0)
+
+            -- Grid position with small random offset
+            local xPos = startX + (col * bedSpacing) + math.random(-2, 2)
+            local zPos = startZ + (row * bedSpacing) + math.random(-2, 2)
+            -- Spawn right on top of platform (platform Y + half height + 0.5 for bed legs)
+            local spawnY = platformPos.Y + (platformSize.Y / 2) + 0.5
+
+            -- Create bed using ModelGenerator
+            local bedPosition = Vector3.new(platformPos.X + xPos, spawnY, platformPos.Z + zPos)
+            local bed = ModelGenerator.CreateBed(bedPosition, mutation)
 
         -- Update prompt text to show zone multiplier
         local mattress = bed:FindFirstChild("Mattress")

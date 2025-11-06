@@ -1,7 +1,7 @@
 --[[
     AdminEventSystem.lua
     SCRIPT TYPE: ModuleScript
-    LOCATION: ServerScriptService/Systems/AdminEventSystem
+    LOCATION: ServerScriptService/AdminEventSystem
 
     Handles global admin events across all servers using MessagingService
     Similar to how "Grow a Garden", "Fisch", and "Steal a Brainrot" work
@@ -11,8 +11,8 @@ local MessagingService = game:GetService("MessagingService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 
-local RandomEvents = require(script.Parent.Parent.RandomEvents)
-local PlayerDataManager = require(script.Parent.Parent.PlayerDataManager)
+local RandomEvents = require(script.Parent.RandomEvents)
+local PlayerDataManager = require(script.Parent.PlayerDataManager)
 
 local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
 local EventNotificationEvent = RemoteEvents:WaitForChild("EventNotification")

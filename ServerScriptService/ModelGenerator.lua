@@ -208,8 +208,9 @@ function ModelGenerator.CreateBed(position, mutation)
     local prompt = Instance.new("ProximityPrompt")
     prompt.ActionText = "Sleep in " .. mutation.Name .. " Bed"
     prompt.ObjectText = mutation.Name .. " Bed (+" .. math.floor(mutation.Multiplier * 100) .. "%)"
-    prompt.MaxActivationDistance = 10
+    prompt.MaxActivationDistance = 20  -- Increased so it's easier to see and interact
     prompt.HoldDuration = 0
+    prompt.RequiresLineOfSight = false  -- Can interact even if partially obstructed
     prompt.Parent = mattress
 
     -- Store mutation data
