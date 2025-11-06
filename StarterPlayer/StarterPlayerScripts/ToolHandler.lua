@@ -1,5 +1,11 @@
--- ToolHandler.lua
--- Handles tool activation on the client
+--[[
+    ToolHandler.lua
+    SCRIPT TYPE: LocalScript (NOT Script or ModuleScript)
+    LOCATION: StarterPlayer/StarterPlayerScripts/ToolHandler
+
+    Handles tool activation on the client
+    Fires UseToolEvent to server when tool is clicked
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

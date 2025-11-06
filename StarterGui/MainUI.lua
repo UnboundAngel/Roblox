@@ -1,5 +1,11 @@
--- MainUI.lua
--- Creates all UI elements for the game
+--[[
+    MainUI.lua
+    SCRIPT TYPE: LocalScript (NOT Script or ModuleScript)
+    LOCATION: StarterGui/MainUI
+
+    Creates all UI elements for the game
+    (Score display, upgrades panel, tool shop, admin panel, notifications)
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

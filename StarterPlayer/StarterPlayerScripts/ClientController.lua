@@ -1,5 +1,11 @@
--- ClientController.lua
--- Handles client-side logic and UI updates
+--[[
+    ClientController.lua
+    SCRIPT TYPE: LocalScript (NOT Script or ModuleScript)
+    LOCATION: StarterPlayer/StarterPlayerScripts/ClientController
+
+    Handles client-side logic and UI updates
+    Listens to RemoteEvents from server
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

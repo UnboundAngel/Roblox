@@ -1,5 +1,10 @@
--- PlayerDataManager.lua
--- Manages player data (scores, upgrades, sleeping state)
+--[[
+    PlayerDataManager.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/PlayerDataManager
+
+    Manages player data (scores, upgrades, sleeping state)
+]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")

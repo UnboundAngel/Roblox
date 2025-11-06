@@ -1,5 +1,10 @@
--- RandomEvents.lua
--- Triggers random events every 5-15 minutes
+--[[
+    RandomEvents.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/RandomEvents
+
+    Triggers random events every 5-15 minutes
+]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")

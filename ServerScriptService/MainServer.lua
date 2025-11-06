@@ -1,5 +1,10 @@
--- MainServer.lua
--- Main server script that initializes all systems
+--[[
+    MainServer.lua
+    SCRIPT TYPE: Script (NOT LocalScript or ModuleScript)
+    LOCATION: ServerScriptService/MainServer
+
+    Main server script that initializes all systems and creates RemoteEvents
+]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

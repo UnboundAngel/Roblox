@@ -1,5 +1,10 @@
--- SleepSystem.lua
--- Handles sleeping mechanics and score earning
+--[[
+    SleepSystem.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/SleepSystem
+
+    Handles sleeping mechanics and score earning
+]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")

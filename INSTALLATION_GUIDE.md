@@ -23,28 +23,38 @@ A multiplayer sleep/idle game where players compete for the highest score by sle
 ```
 Roblox/
 ├── ServerScriptService/
-│   ├── MainServer.lua          (Main initialization script)
-│   ├── GameConfig.lua          (All game configuration)
-│   ├── ModelGenerator.lua      (Creates all 3D models)
-│   ├── PlayerDataManager.lua   (Player data & scores)
-│   ├── SleepSystem.lua         (Sleep mechanics)
-│   ├── DayNightCycle.lua       (Day/night transitions)
-│   ├── RandomEvents.lua        (Random event system)
-│   ├── BedManager.lua          (Bed spawning & mutations)
-│   ├── ToolSystem.lua          (Wake & Steal mechanics)
-│   └── AdminCommands.lua       (Admin command handlers)
+│   ├── MainServer.lua          ⚙️  [Script] Main initialization + RemoteEvents
+│   ├── GameConfig.lua          📦 [ModuleScript] All game configuration
+│   ├── ModelGenerator.lua      📦 [ModuleScript] Creates all 3D models
+│   ├── PlayerDataManager.lua   📦 [ModuleScript] Player data & scores
+│   ├── SleepSystem.lua         📦 [ModuleScript] Sleep mechanics
+│   ├── DayNightCycle.lua       📦 [ModuleScript] Day/night transitions
+│   ├── RandomEvents.lua        📦 [ModuleScript] Random event system
+│   ├── BedManager.lua          📦 [ModuleScript] Bed spawning & mutations
+│   ├── ToolSystem.lua          📦 [ModuleScript] Wake & Steal mechanics
+│   └── AdminCommands.lua       📦 [ModuleScript] Admin command handlers
 │
 ├── StarterGui/
-│   └── MainUI.lua              (Creates all UI elements)
+│   └── MainUI.lua              🖱️  [LocalScript] Creates all UI elements
 │
 ├── StarterPlayer/StarterPlayerScripts/
-│   ├── ClientController.lua    (Client-side logic)
-│   └── ToolHandler.lua         (Tool activation)
+│   ├── ClientController.lua    🖱️  [LocalScript] Client-side logic
+│   └── ToolHandler.lua         🖱️  [LocalScript] Tool activation
+│
+├── ReplicatedStorage/ (auto-created by MainServer)
+│   └── RemoteEvents/           📡 Contains 10 RemoteEvent instances
 │
 └── Documentation/
-    ├── sleep_game_design.md    (Full design document)
-    └── INSTALLATION_GUIDE.md   (This file)
+    ├── sleep_game_design.md           (Full design document)
+    ├── INSTALLATION_GUIDE.md          (This file)
+    └── SCRIPT_TYPE_REFERENCE.md       (Complete script type guide)
 ```
+
+### Script Type Legend:
+- ⚙️  **Script** = Server-side (yellow icon in Studio)
+- 📦 **ModuleScript** = Reusable module (purple icon in Studio)
+- 🖱️  **LocalScript** = Client-side (blue icon in Studio)
+- 📡 **RemoteEvent** = Server↔Client communication (auto-created)
 
 ---
 
@@ -71,25 +81,61 @@ To find your User ID:
 
 ### 3. Copy Scripts to Roblox Studio
 
+**⚠️ IMPORTANT: Script types MUST match exactly or the game won't work!**
+
 #### A. ServerScriptService Scripts
-1. In Roblox Studio, navigate to **ServerScriptService**
-2. For each `.lua` file in `ServerScriptService/`:
-   - Create a new **Script** (NOT LocalScript)
-   - Name it exactly as shown (e.g., `MainServer`, `GameConfig`, etc.)
-   - Copy the code from the file
-   - Paste it into the script
 
-#### B. StarterGui Scripts
+**Create 1 Script (yellow icon):**
+1. In **ServerScriptService**, right-click → Insert Object → **Script**
+2. Name it: `MainServer`
+3. Copy code from `ServerScriptService/MainServer.lua`
+4. Paste into the script
+
+**Create 9 ModuleScripts (purple icon):**
+For each of these files, create a **ModuleScript** (NOT Script or LocalScript):
+
+1. Right-click **ServerScriptService** → Insert Object → **ModuleScript**
+2. Name it exactly as shown below
+3. Copy the respective code and paste
+
+| Module Name | File to Copy From |
+|-------------|-------------------|
+| GameConfig | ServerScriptService/GameConfig.lua |
+| ModelGenerator | ServerScriptService/ModelGenerator.lua |
+| PlayerDataManager | ServerScriptService/PlayerDataManager.lua |
+| SleepSystem | ServerScriptService/SleepSystem.lua |
+| DayNightCycle | ServerScriptService/DayNightCycle.lua |
+| RandomEvents | ServerScriptService/RandomEvents.lua |
+| BedManager | ServerScriptService/BedManager.lua |
+| ToolSystem | ServerScriptService/ToolSystem.lua |
+| AdminCommands | ServerScriptService/AdminCommands.lua |
+
+#### B. StarterGui Scripts (Client UI)
+
+**Create 1 LocalScript (blue icon):**
 1. Navigate to **StarterGui**
-2. Create a **LocalScript** named `MainUI`
-3. Copy code from `StarterGui/MainUI.lua`
+2. Right-click → Insert Object → **LocalScript**
+3. Name it: `MainUI`
+4. Copy code from `StarterGui/MainUI.lua`
 
-#### C. StarterPlayer Scripts
+#### C. StarterPlayer Scripts (Client Logic)
+
+**Create 2 LocalScripts (blue icon):**
 1. Navigate to **StarterPlayer** → **StarterPlayerScripts**
-2. Create two **LocalScript**s:
-   - `ClientController`
-   - `ToolHandler`
-3. Copy respective code files
+2. For each script below:
+   - Right-click → Insert Object → **LocalScript**
+   - Name it exactly as shown
+   - Copy the respective code
+
+| Script Name | File to Copy From |
+|-------------|-------------------|
+| ClientController | StarterPlayer/StarterPlayerScripts/ClientController.lua |
+| ToolHandler | StarterPlayer/StarterPlayerScripts/ToolHandler.lua |
+
+#### D. RemoteEvents (Auto-Created)
+✅ **No action needed!** MainServer.lua automatically creates:
+- `ReplicatedStorage/RemoteEvents/` folder
+- 10 RemoteEvent instances inside it
 
 ### 4. Run the Game!
 1. Click **Play** (F5) in Roblox Studio

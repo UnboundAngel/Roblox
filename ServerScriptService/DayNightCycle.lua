@@ -1,5 +1,10 @@
--- DayNightCycle.lua
--- Manages day/night transitions every 5 minutes
+--[[
+    DayNightCycle.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/DayNightCycle
+
+    Manages day/night transitions every 5 minutes
+]]
 
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

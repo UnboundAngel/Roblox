@@ -1,5 +1,11 @@
--- GameConfig.lua
--- Configuration module for the entire game
+--[[
+    GameConfig.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/GameConfig
+
+    Configuration module for the entire game
+    IMPORTANT: Update Admin User IDs before playing!
+]]
 
 local GameConfig = {}
 

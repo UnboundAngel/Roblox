@@ -1,5 +1,10 @@
--- BedManager.lua
--- Spawns and manages beds on islands
+--[[
+    BedManager.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/BedManager
+
+    Spawns and manages beds on islands
+]]
 
 local GameConfig = require(script.Parent.GameConfig)
 local ModelGenerator = require(script.Parent.ModelGenerator)

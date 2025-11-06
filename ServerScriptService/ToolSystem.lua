@@ -1,5 +1,10 @@
--- ToolSystem.lua
--- Handles Wake & Steal tool mechanics
+--[[
+    ToolSystem.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/ToolSystem
+
+    Handles Wake & Steal tool mechanics
+]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")

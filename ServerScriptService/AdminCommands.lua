@@ -1,5 +1,10 @@
--- AdminCommands.lua
--- Admin abuse commands for server-wide control
+--[[
+    AdminCommands.lua
+    SCRIPT TYPE: ModuleScript
+    LOCATION: ServerScriptService/AdminCommands
+
+    Admin abuse commands for server-wide control
+]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
