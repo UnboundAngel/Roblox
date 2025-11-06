@@ -21,17 +21,30 @@ local EventNotificationEvent = RemoteEvents:WaitForChild("EventNotification")
 local ZoneManager = {}
 ZoneManager.Zones = {} -- Store zone models and data
 
--- Zone positions (spread out on baseplate)
+-- Zone positions (spread FAR apart to prevent overlap - platforms are 250x250)
 local ZonePositions = {
-    ["<� Hub"] = Vector3.new(0, 5, 0),
-    ["<1 Starter Zone"] = Vector3.new(-150, 5, -150),
-    ["<2 Forest Zone"] = Vector3.new(150, 5, -150),
-    ["� Mountain Zone"] = Vector3.new(-150, 5, 150),
-    ["<� Beach Zone"] = Vector3.new(150, 5, 150),
-    ["< Volcano Zone"] = Vector3.new(-300, 5, 0),
-    ["D Ice Zone"] = Vector3.new(300, 5, 0),
-    ["< Space Zone"] = Vector3.new(0, 5, -300),
-    ["( Heaven Zone"] = Vector3.new(0, 5, 300),
+    ["Hub"] = Vector3.new(0, 5, 0),
+    ["Starter Zone"] = Vector3.new(-400, 5, -400),
+    ["Forest Zone"] = Vector3.new(400, 5, -400),
+    ["Mountain Zone"] = Vector3.new(-400, 5, 400),
+    ["Beach Zone"] = Vector3.new(400, 5, 400),
+    ["Volcano Zone"] = Vector3.new(-800, 5, 0),
+    ["Ice Zone"] = Vector3.new(800, 5, 0),
+    ["Space Zone"] = Vector3.new(0, 5, -800),
+    ["Heaven Zone"] = Vector3.new(0, 5, 800),
+}
+
+-- Zone materials and textures
+local ZoneMaterials = {
+    ["Hub"] = {Material = Enum.Material.Concrete},
+    ["Starter Zone"] = {Material = Enum.Material.Grass},
+    ["Forest Zone"] = {Material = Enum.Material.LeafyGrass},
+    ["Mountain Zone"] = {Material = Enum.Material.Rock},
+    ["Beach Zone"] = {Material = Enum.Material.Sand},
+    ["Volcano Zone"] = {Material = Enum.Material.Basalt},
+    ["Ice Zone"] = {Material = Enum.Material.Ice},
+    ["Space Zone"] = {Material = Enum.Material.ForceField},
+    ["Heaven Zone"] = {Material = Enum.Material.Neon},
 }
 
 -- Create a zone area
@@ -46,8 +59,20 @@ function ZoneManager.CreateZoneArea(zoneName, zoneConfig, position)
     platform.Size = Vector3.new(250, 3, 250)  -- Made much bigger
     platform.Position = position
     platform.Anchored = true
-    platform.Color = zoneConfig.Color
-    platform.Material = Enum.Material.SmoothPlastic  -- Changed from Neon to SmoothPlastic
+
+    -- Apply themed material
+    local zoneMaterial = ZoneMaterials[zoneName]
+    if zoneMaterial then
+        platform.Material = zoneMaterial.Material
+        -- Keep color for zones that need it (Heaven/Space)
+        if zoneName == "Heaven Zone" or zoneName == "Space Zone" then
+            platform.Color = zoneConfig.Color
+        end
+    else
+        platform.Material = Enum.Material.SmoothPlastic
+        platform.Color = zoneConfig.Color
+    end
+
     platform.TopSurface = Enum.SurfaceType.Smooth
     platform.BottomSurface = Enum.SurfaceType.Smooth
     platform.Parent = zoneFolder

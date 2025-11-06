@@ -139,7 +139,8 @@ function BedManager.SpawnBedsInArea(platform, bedCount, zoneName, multiplier)
         -- Random position on platform
         local randomX = math.random(-spawnAreaX/2, spawnAreaX/2)
         local randomZ = math.random(-spawnAreaZ/2, spawnAreaZ/2)
-        local spawnY = platformPos.Y + (platformSize.Y / 2) + 3
+        -- Spawn right on top of platform (platform Y + half height + 0.5 for bed legs)
+        local spawnY = platformPos.Y + (platformSize.Y / 2) + 0.5
 
         -- Create bed using ModelGenerator
         local bedPosition = Vector3.new(platformPos.X + randomX, spawnY, platformPos.Z + randomZ)

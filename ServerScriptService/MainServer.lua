@@ -167,6 +167,13 @@ Players.PlayerAdded:Connect(function(player)
     task.wait(1)
     OfflineGenerationSystem.OnPlayerJoin(player)
 
+    -- Send game ready signal (in case they join after initialization)
+    task.wait(0.5)
+    local gameReadyEvent = ReplicatedStorage:FindFirstChild("GameReady")
+    if gameReadyEvent then
+        gameReadyEvent:FireClient(player)
+    end
+
     -- Give starting tool to admins
     if table.find(GameConfig.Admins, player.UserId) then
         task.wait(2)
@@ -227,3 +234,18 @@ print("[MainServer] Total Beds Spawned:", #BedManager.AllBeds)
 print("[MainServer] Day/Night Cycle: Every", GameConfig.DayNight.CycleDuration, "seconds")
 print("[MainServer] Random Events: Every", GameConfig.RandomEvents.MinInterval, "-", GameConfig.RandomEvents.MaxInterval, "seconds")
 print("[MainServer] =====================================")
+
+-- Signal to all clients that game is ready
+task.wait(0.5)  -- Small delay to ensure everything is replicated
+local gameReadyEvent = ReplicatedStorage:FindFirstChild("GameReady")
+if not gameReadyEvent then
+    gameReadyEvent = Instance.new("RemoteEvent")
+    gameReadyEvent.Name = "GameReady"
+    gameReadyEvent.Parent = ReplicatedStorage
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    gameReadyEvent:FireClient(player)
+end
+
+print("[MainServer] Game ready signal sent to all clients")

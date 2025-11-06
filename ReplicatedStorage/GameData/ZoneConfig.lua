@@ -10,7 +10,7 @@ local ZoneConfig = {
     -- Zone definitions
     Zones = {
         {
-            Name = "<à Hub",
+            Name = "Hub",
             Description = "Safe zone with merchants",
             RebirthRequired = 0,  -- Always available
             Color = Color3.fromRGB(100, 150, 255),
@@ -18,7 +18,7 @@ local ZoneConfig = {
             IsHub = true,
         },
         {
-            Name = "<1 Starter Zone",
+            Name = "Starter Zone",
             Description = "The beginning of your journey",
             RebirthRequired = 0,  -- Always available
             Color = Color3.fromRGB(100, 255, 100),
@@ -26,7 +26,7 @@ local ZoneConfig = {
             BedMultiplier = 1.0,
         },
         {
-            Name = "<2 Forest Zone",
+            Name = "Forest Zone",
             Description = "Peaceful forest with better beds",
             RebirthRequired = 2,
             Color = Color3.fromRGB(50, 150, 50),
@@ -34,7 +34,7 @@ local ZoneConfig = {
             BedMultiplier = 1.5,
         },
         {
-            Name = "ð Mountain Zone",
+            Name = "Mountain Zone",
             Description = "High altitude, high rewards",
             RebirthRequired = 5,
             Color = Color3.fromRGB(150, 150, 150),
@@ -42,7 +42,7 @@ local ZoneConfig = {
             BedMultiplier = 2.5,
         },
         {
-            Name = "<Ö Beach Zone",
+            Name = "Beach Zone",
             Description = "Tropical paradise with luxury beds",
             RebirthRequired = 8,
             Color = Color3.fromRGB(255, 230, 150),
@@ -50,7 +50,7 @@ local ZoneConfig = {
             BedMultiplier = 4.0,
         },
         {
-            Name = "< Volcano Zone",
+            Name = "Volcano Zone",
             Description = "Dangerous but extremely rewarding",
             RebirthRequired = 12,
             Color = Color3.fromRGB(200, 50, 50),
@@ -58,7 +58,7 @@ local ZoneConfig = {
             BedMultiplier = 7.0,
         },
         {
-            Name = "D Ice Zone",
+            Name = "Ice Zone",
             Description = "Frozen tundra with rare beds",
             RebirthRequired = 15,
             Color = Color3.fromRGB(150, 200, 255),
@@ -66,7 +66,7 @@ local ZoneConfig = {
             BedMultiplier = 12.0,
         },
         {
-            Name = "< Space Zone",
+            Name = "Space Zone",
             Description = "Zero gravity, infinite possibilities",
             RebirthRequired = 18,
             Color = Color3.fromRGB(50, 0, 100),
@@ -74,7 +74,7 @@ local ZoneConfig = {
             BedMultiplier = 20.0,
         },
         {
-            Name = "( Heaven Zone",
+            Name = "Heaven Zone",
             Description = "The ultimate endgame zone",
             RebirthRequired = 20,
             Color = Color3.fromRGB(255, 215, 0),
