@@ -31,12 +31,35 @@ local function OnBedActivated(player, bed)
         PlayerDataManager.StopSleeping(player)
         SleepEvent:FireClient(player, false, nil)
 
-        -- Make character visible and enable controls
+        -- Restore character state
         if player.Character then
-            player.Character.Archivable = true
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+
+            -- Unanchor and restore controls
+            if rootPart then
+                rootPart.Anchored = false
+            end
+
+            if humanoid then
+                humanoid.PlatformStand = false
+                humanoid.Sit = false
+            end
+
+            -- Restore full opacity
             for _, part in pairs(player.Character:GetChildren()) do
                 if part:IsA("BasePart") then
                     part.Transparency = 0
+                end
+            end
+
+            -- Restore head and face
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                head.Transparency = 0
+                local face = head:FindFirstChild("face")
+                if face then
+                    face.Transparency = 0
                 end
             end
         end
@@ -59,14 +82,36 @@ local function OnBedActivated(player, bed)
         PlayerDataManager.StartSleeping(player, bed)
         SleepEvent:FireClient(player, true, mutation.Name)
 
-        -- Make character semi-transparent and lock in place
-        if player.Character and player.Character.PrimaryPart then
-            local bedPosition = bed.PrimaryPart.Position + Vector3.new(0, 3, 0)
-            player.Character:SetPrimaryPartCFrame(CFrame.new(bedPosition))
+        -- Make character lay down on bed
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            local rootPart = player.Character.HumanoidRootPart
 
-            for _, part in pairs(player.Character:GetChildren()) do
-                if part:IsA("BasePart") then
-                    part.Transparency = 0.5
+            -- Find bed surface to lay on
+            local bedSurface = bed:FindFirstChild("Mattress") or bed:FindFirstChild("WoolCover") or bed:FindFirstChildWhichIsA("BasePart")
+
+            if bedSurface then
+                -- Position character on bed (laying down)
+                local bedTop = bedSurface.Position + Vector3.new(0, bedSurface.Size.Y / 2 + 1.5, 0)
+
+                -- Rotate character to lay horizontally
+                local layingCFrame = CFrame.new(bedTop) * CFrame.Angles(math.rad(90), 0, 0)
+                rootPart.CFrame = layingCFrame
+
+                -- Anchor root part to prevent falling
+                rootPart.Anchored = true
+
+                -- Disable character controls
+                if humanoid then
+                    humanoid.PlatformStand = true
+                    humanoid.Sit = false
+                end
+
+                -- Make character slightly transparent
+                for _, part in pairs(player.Character:GetChildren()) do
+                    if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                        part.Transparency = 0.3
+                    end
                 end
             end
         end
@@ -79,6 +124,20 @@ local function OnBedActivated(player, bed)
                     SleepEvent:FireClient(player, false, nil)
 
                     if player.Character then
+                        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                        local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+
+                        -- Unanchor and restore controls
+                        if rootPart then
+                            rootPart.Anchored = false
+                        end
+
+                        if humanoid then
+                            humanoid.PlatformStand = false
+                            humanoid.Sit = false
+                        end
+
+                        -- Restore full opacity
                         for _, part in pairs(player.Character:GetChildren()) do
                             if part:IsA("BasePart") then
                                 part.Transparency = 0
@@ -109,9 +168,26 @@ function SleepSystem.StartEarningLoop()
                     end
 
                     if mutation then
-                        local baseRate = PlayerDataManager.GetEarningRate(player, mutation.Multiplier)
+                        local bedMultiplier = mutation.Multiplier
+
+                        -- Apply zone multiplier if present
+                        local zoneMultiplierValue = data.CurrentBed:FindFirstChild("ZoneMultiplier")
+                        if zoneMultiplierValue and zoneMultiplierValue:IsA("NumberValue") then
+                            bedMultiplier = bedMultiplier * zoneMultiplierValue.Value
+                        end
+
+                        local baseRate = PlayerDataManager.GetEarningRate(player, bedMultiplier)
                         local nightBonus = SleepSystem.IsNight and GameConfig.Sleep.NightMultiplier or 1
-                        local finalRate = baseRate * nightBonus * SleepSystem.GlobalMultiplier
+
+                        -- Apply rebirth multiplier
+                        local rebirthMultiplier = 1
+                        if data.RebirthLevel and data.RebirthLevel > 0 then
+                            local GameData = game:GetService("ReplicatedStorage"):WaitForChild("GameData")
+                            local RebirthConfig = require(GameData:WaitForChild("RebirthConfig"))
+                            rebirthMultiplier = RebirthConfig.GetMultiplier(data.RebirthLevel) or 1
+                        end
+
+                        local finalRate = baseRate * nightBonus * SleepSystem.GlobalMultiplier * rebirthMultiplier
 
                         PlayerDataManager.AddTimePoints(player, finalRate * deltaTime)
                     end
@@ -145,9 +221,33 @@ function SleepSystem.WakePlayer(player)
         SleepEvent:FireClient(player, false, nil)
 
         if player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            local rootPart = player.Character:FindFirstChild("HumanoidRootPart")
+
+            -- Unanchor and restore controls
+            if rootPart then
+                rootPart.Anchored = false
+            end
+
+            if humanoid then
+                humanoid.PlatformStand = false
+                humanoid.Sit = false
+            end
+
+            -- Restore full opacity
             for _, part in pairs(player.Character:GetChildren()) do
                 if part:IsA("BasePart") then
                     part.Transparency = 0
+                end
+            end
+
+            -- Restore head and face
+            local head = player.Character:FindFirstChild("Head")
+            if head then
+                head.Transparency = 0
+                local face = head:FindFirstChild("face")
+                if face then
+                    face.Transparency = 0
                 end
             end
         end

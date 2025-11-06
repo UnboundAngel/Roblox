@@ -13,6 +13,8 @@ local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local RemoteEvents = ReplicatedStorage:WaitForChild("RemoteEvents")
+local GameData = ReplicatedStorage:WaitForChild("GameData")
+local EventImages = require(GameData:WaitForChild("EventImages"))
 
 -- Wait for UI to load
 repeat task.wait() until _G.GameUI
@@ -30,50 +32,80 @@ local DayNightEvent = RemoteEvents:WaitForChild("DayNight")
 local TweenService = game:GetService("TweenService")
 
 DayNightEvent.OnClientEvent:Connect(function(isDay)
-    if isDay then
-        UI.dayNightText.Text = "☀️ DAY"
-        TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
-            BackgroundColor3 = Color3.fromRGB(255, 200, 50)
-        }):Play()
-    else
-        UI.dayNightText.Text = "🌙 NIGHT (2x)"
-        TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
-            BackgroundColor3 = Color3.fromRGB(50, 50, 150)
-        }):Play()
+    if UI.dayNightText then
+        if isDay then
+            UI.dayNightText.Text = "☀️ DAY"
+        else
+            UI.dayNightText.Text = "🌙 NIGHT (2x)"
+        end
+    end
+
+    if UI.dayNightLabel then
+        if isDay then
+            TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+                BackgroundColor3 = Color3.fromRGB(255, 200, 50)
+            }):Play()
+        else
+            TweenService:Create(UI.dayNightLabel, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+                BackgroundColor3 = Color3.fromRGB(50, 50, 150)
+            }):Play()
+        end
     end
 end)
 
 -- ===== EVENT NOTIFICATION =====
 local EventNotificationEvent = RemoteEvents:WaitForChild("EventNotification")
-EventNotificationEvent.OnClientEvent:Connect(function(message, duration)
-    if message ~= "" then
-        UI.eventText.Text = message
-        UI.eventNotification.Visible = true
+local currentEventName = nil
 
-        -- Random color based on event
-        if string.find(message, "SURGE") then
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
-        elseif string.find(message, "CHAOS") then
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(255, 100, 255)
-        elseif string.find(message, "FRENZY") then
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(255, 100, 100)
-        elseif string.find(message, "GOLDEN") then
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
-        elseif string.find(message, "SHIELD") then
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
-        elseif string.find(message, "DRAIN") then
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
-        else
-            UI.eventNotification.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+EventNotificationEvent.OnClientEvent:Connect(function(message, duration, eventName, multiplier)
+    if message ~= "" then
+        -- Store current event data
+        currentEventName = eventName
+
+        -- Show event icon with appropriate image
+        local eventIcon = UI.eventIcon
+        local eventTooltip = UI.eventTooltip
+
+        if eventName and EventImages[eventName] and EventImages[eventName] ~= "" then
+            eventIcon.Image = EventImages[eventName]
+            eventIcon.Visible = true
+
+            -- Update tooltip
+            eventTooltip:FindFirstChild("Title").Text = eventName
+
+            -- Set multiplier text based on event type
+            local multiplierText = ""
+            if eventName == "Score Surge" then
+                multiplierText = string.format("⚡ %dx Multiplier", multiplier or 3)
+            elseif eventName == "Bed Chaos" then
+                multiplierText = "🛏️ All beds randomized!"
+            elseif eventName == "Theft Frenzy" then
+                multiplierText = "💰 Tool cooldown halved"
+            elseif eventName == "Golden Hour" then
+                multiplierText = "✨ Night bonus active"
+            elseif eventName == "Shield Storm" then
+                multiplierText = "🛡️ Theft protection"
+            elseif eventName == "Score Drain" then
+                multiplierText = "💀 5% score lost"
+            end
+            eventTooltip:FindFirstChild("Multiplier").Text = multiplierText
+            eventTooltip:FindFirstChild("Duration").Text = string.format("⏱️ %ds remaining", duration or 0)
         end
 
         if duration > 0 then
             task.delay(duration, function()
-                UI.eventNotification.Visible = false
+                if currentEventName == eventName then
+                    eventIcon.Visible = false
+                    eventTooltip.Visible = false
+                    currentEventName = nil
+                end
             end)
         end
     else
-        UI.eventNotification.Visible = false
+        -- Hide event icon when event ends
+        UI.eventIcon.Visible = false
+        UI.eventTooltip.Visible = false
+        currentEventName = nil
     end
 end)
 
@@ -135,13 +167,15 @@ local function UpdateUpgradeButtons()
 end
 
 -- Handle upgrade purchases
-for upgradeName, button in pairs(UI.upgradeButtons) do
-    button.MouseButton1Click:Connect(function()
-        local config = UpgradesConfig[upgradeName]
-        if currentUpgrades[upgradeName] < config.MaxLevel then
-            PurchaseUpgradeEvent:FireServer(upgradeName)
-        end
-    end)
+if UI.upgradeButtons then
+    for upgradeName, button in pairs(UI.upgradeButtons) do
+        button.MouseButton1Click:Connect(function()
+            local config = UpgradesConfig[upgradeName]
+            if currentUpgrades[upgradeName] < config.MaxLevel then
+                PurchaseUpgradeEvent:FireServer(upgradeName)
+            end
+        end)
+    end
 end
 
 UpdateUpgradesEvent.OnClientEvent:Connect(function(upgrades)

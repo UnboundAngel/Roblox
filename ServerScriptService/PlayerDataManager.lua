@@ -29,6 +29,15 @@ function PlayerDataManager.InitPlayer(player)
             ToolCapacity = 0,
             ScoreMultiplier = 0,
         },
+        HubUpgrades = {
+            AutoSleeper = 0,
+            OfflineGeneration = 0,
+            TheftShield = 0,
+            SpeedBoost = 0,
+        },
+        RebirthLevel = 0,
+        CurrentZone = "🌱 Starter Zone",
+        LastLogoutTime = 0,
         Tools = {},
         IsAdmin = table.find(GameConfig.Admins, player.UserId) ~= nil,
         GodMode = false,
@@ -49,6 +58,15 @@ end
 
 -- Remove player data
 function PlayerDataManager.RemovePlayer(player)
+    local data = PlayerDataManager.GetData(player)
+    if data then
+        -- Store logout time for offline generation
+        data.LastLogoutTime = os.time()
+
+        -- TODO: Save data to DataStore here
+        -- For now, data is lost on server restart
+    end
+
     PlayerDataManager.PlayerData[player.UserId] = nil
 end
 

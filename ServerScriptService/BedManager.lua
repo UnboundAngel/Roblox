@@ -118,6 +118,57 @@ function BedManager.SpawnBedsOnBaseplate(baseplate, bedCount)
     print(string.format("[BedManager] Successfully spawned %d beds!", #BedManager.AllBeds))
 end
 
+-- Spawn beds in a specific zone area
+function BedManager.SpawnBedsInArea(platform, bedCount, zoneName, multiplier)
+    local ModelGenerator = require(script.Parent.ModelGenerator)
+
+    local platformSize = platform.Size
+    local platformPos = platform.Position
+
+    -- Spawn area slightly smaller than platform
+    local spawnAreaX = platformSize.X * 0.8
+    local spawnAreaZ = platformSize.Z * 0.8
+
+    for i = 1, bedCount do
+        -- Get random mutation
+        local mutation = GetRandomMutation()
+
+        -- Apply zone multiplier boost
+        local finalMultiplier = mutation.Multiplier * (multiplier or 1.0)
+
+        -- Random position on platform
+        local randomX = math.random(-spawnAreaX/2, spawnAreaX/2)
+        local randomZ = math.random(-spawnAreaZ/2, spawnAreaZ/2)
+        -- Spawn right on top of platform (platform Y + half height + 0.5 for bed legs)
+        local spawnY = platformPos.Y + (platformSize.Y / 2) + 0.5
+
+        -- Create bed using ModelGenerator
+        local bedPosition = Vector3.new(platformPos.X + randomX, spawnY, platformPos.Z + randomZ)
+        local bed = ModelGenerator.CreateBed(bedPosition, mutation)
+
+        -- Update prompt text to show zone multiplier
+        local mattress = bed:FindFirstChild("Mattress")
+        if mattress then
+            local prompt = mattress:FindFirstChild("ProximityPrompt")
+            if prompt then
+                prompt.ObjectText = string.format("%s Bed (%.1fx)", mutation.Name, finalMultiplier)
+            end
+        end
+
+        -- Store zone multiplier
+        local multiplierValue = Instance.new("NumberValue")
+        multiplierValue.Name = "ZoneMultiplier"
+        multiplierValue.Value = multiplier or 1.0
+        multiplierValue.Parent = bed
+
+        bed.Name = zoneName .. "_Bed_" .. i
+        bed.Parent = workspace
+        table.insert(BedManager.AllBeds, bed)
+    end
+
+    print(string.format("[BedManager] Spawned %d beds in %s (%.1fx multiplier)", bedCount, zoneName, multiplier or 1.0))
+end
+
 -- Randomize all beds (for Bed Chaos event)
 function BedManager.RandomizeBeds()
     for _, bed in ipairs(BedManager.AllBeds) do

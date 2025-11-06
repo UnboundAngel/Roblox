@@ -27,6 +27,10 @@ local remoteEvents = {
     "EventNotification",
     "AdminCommand",
     "UpdateUpgrades",
+    "OpenUpgradeUI",
+    "PurchaseHubUpgrade",
+    "OpenRebirth UI",
+    "Rebirth",
 }
 
 for _, eventName in ipairs(remoteEvents) do
@@ -36,6 +40,13 @@ for _, eventName in ipairs(remoteEvents) do
 end
 
 print("[MainServer] Created RemoteEvents")
+
+-- Create GameData folder for configs
+local gameDataFolder = Instance.new("Folder")
+gameDataFolder.Name = "GameData"
+gameDataFolder.Parent = ReplicatedStorage
+
+print("[MainServer] Created GameData folder")
 
 -- Wait for RemoteEvents to replicate
 wait(1)
@@ -50,6 +61,19 @@ local RandomEvents = require(script.Parent.RandomEvents)
 local BedManager = require(script.Parent.BedManager)
 local ToolSystem = require(script.Parent.ToolSystem)
 local AdminCommands = require(script.Parent.AdminCommands)
+
+-- Load NPC modules
+local NPCFolder = script.Parent:WaitForChild("NPCs")
+local NPCManager = require(NPCFolder:WaitForChild("NPCManager"))
+local ToolMerchant = require(NPCFolder:WaitForChild("ToolMerchant"))
+local UpgradeMerchant = require(NPCFolder:WaitForChild("UpgradeMerchant"))
+
+-- Load Systems modules
+local SystemsFolder = script.Parent:WaitForChild("Systems")
+local AutoSleeperSystem = require(SystemsFolder:WaitForChild("AutoSleeperSystem"))
+local OfflineGenerationSystem = require(SystemsFolder:WaitForChild("OfflineGenerationSystem"))
+local RebirthSystem = require(SystemsFolder:WaitForChild("RebirthSystem"))
+local ZoneManager = require(SystemsFolder:WaitForChild("ZoneManager"))
 
 print("[MainServer] Loaded all modules")
 
@@ -94,15 +118,30 @@ if not baseplate then
     print("[MainServer] Created new baseplate")
 end
 
--- Spawn beds scattered on baseplate
-local bedCount = GameConfig.Map.BedCount or 30  -- Default 30 beds
-BedManager.SpawnBedsOnBaseplate(baseplate, bedCount)
+-- Initialize zones (this will create zone platforms and spawn beds)
+ZoneManager.InitializeZones()
+ZoneManager.Setup()
+print("[MainServer] Zones initialized!")
 
-print("[MainServer] Baseplate setup complete!")
-
--- Setup beds
+-- Setup beds (for any remaining beds on baseplate)
 SleepSystem.SetupBeds()
 print("[MainServer] Setup all bed interactions")
+
+-- Spawn NPCs
+NPCManager.SpawnDefaultNPCs()
+
+-- Setup NPC interactions
+local toolMerchantNPC = NPCManager.GetNPC("🔧 Tool Merchant")
+if toolMerchantNPC then
+    ToolMerchant.Setup(toolMerchantNPC)
+end
+
+local upgradeMerchantNPC = NPCManager.GetNPC("⭐ Upgrade Master")
+if upgradeMerchantNPC then
+    UpgradeMerchant.Setup(upgradeMerchantNPC)
+end
+
+print("[MainServer] Spawned and setup all NPCs")
 
 -- Start systems
 SleepSystem.StartEarningLoop()
@@ -114,9 +153,26 @@ print("[MainServer] Started day/night cycle")
 RandomEvents.Start()
 print("[MainServer] Started random events system")
 
+AutoSleeperSystem.Start()
+print("[MainServer] Started auto-sleeper system")
+
+RebirthSystem.Setup()
+print("[MainServer] Rebirth system ready")
+
 -- Handle player joining
 Players.PlayerAdded:Connect(function(player)
     PlayerDataManager.InitPlayer(player)
+
+    -- Calculate offline earnings
+    task.wait(1)
+    OfflineGenerationSystem.OnPlayerJoin(player)
+
+    -- Send game ready signal (in case they join after initialization)
+    task.wait(0.5)
+    local gameReadyEvent = ReplicatedStorage:FindFirstChild("GameReady")
+    if gameReadyEvent then
+        gameReadyEvent:FireClient(player)
+    end
 
     -- Give starting tool to admins
     if table.find(GameConfig.Admins, player.UserId) then
@@ -141,7 +197,7 @@ for _, player in ipairs(Players:GetPlayers()) do
     end
 end
 
--- Setup upgrades remote event
+-- Setup upgrades remote event (old system)
 local PurchaseUpgradeEvent = remoteEventsFolder:FindFirstChild("PurchaseUpgrade")
 if PurchaseUpgradeEvent then
     PurchaseUpgradeEvent.OnServerEvent:Connect(function(player, upgradeName)
@@ -158,9 +214,38 @@ if PurchaseUpgradeEvent then
     end)
 end
 
+-- Setup hub upgrades remote event (new system)
+local PurchaseHubUpgradeEvent = remoteEventsFolder:FindFirstChild("PurchaseHubUpgrade")
+if PurchaseHubUpgradeEvent then
+    PurchaseHubUpgradeEvent.OnServerEvent:Connect(function(player, upgradeName)
+        local success, message = UpgradeMerchant.PurchaseUpgrade(player, upgradeName)
+        if not success then
+            local EventNotificationEvent = remoteEventsFolder:FindFirstChild("EventNotification")
+            if EventNotificationEvent then
+                EventNotificationEvent:FireClient(player, "❌ " .. message, 3, nil, nil)
+            end
+        end
+    end)
+end
+
 print("[MainServer] ===== SLEEP GAME INITIALIZED =====")
 print("[MainServer] Admins:", table.concat(GameConfig.Admins, ", "))
 print("[MainServer] Total Beds Spawned:", #BedManager.AllBeds)
 print("[MainServer] Day/Night Cycle: Every", GameConfig.DayNight.CycleDuration, "seconds")
 print("[MainServer] Random Events: Every", GameConfig.RandomEvents.MinInterval, "-", GameConfig.RandomEvents.MaxInterval, "seconds")
 print("[MainServer] =====================================")
+
+-- Signal to all clients that game is ready
+task.wait(0.5)  -- Small delay to ensure everything is replicated
+local gameReadyEvent = ReplicatedStorage:FindFirstChild("GameReady")
+if not gameReadyEvent then
+    gameReadyEvent = Instance.new("RemoteEvent")
+    gameReadyEvent.Name = "GameReady"
+    gameReadyEvent.Parent = ReplicatedStorage
+end
+
+for _, player in ipairs(Players:GetPlayers()) do
+    gameReadyEvent:FireClient(player)
+end
+
+print("[MainServer] Game ready signal sent to all clients")
