@@ -27,11 +27,11 @@ RandomEvents.ShieldActive = false
 local function TriggerScoreSurge(event)
     print("[RandomEvents] Score Surge activated!")
     RandomEvents.EventMultiplier = event.Multiplier
-    EventNotificationEvent:FireAllClients(event.Message, event.Duration)
+    EventNotificationEvent:FireAllClients(event.Message, event.Duration, "Score Surge", event.Multiplier)
 
     task.delay(event.Duration, function()
         RandomEvents.EventMultiplier = 1
-        EventNotificationEvent:FireAllClients("", 0)
+        EventNotificationEvent:FireAllClients("", 0, nil, nil)
     end)
 end
 
@@ -39,10 +39,10 @@ end
 local function TriggerBedChaos(event)
     print("[RandomEvents] Bed Chaos activated!")
     BedManager.RandomizeBeds()
-    EventNotificationEvent:FireAllClients(event.Message, 5)
+    EventNotificationEvent:FireAllClients(event.Message, 5, "Bed Chaos", nil)
 
     task.delay(5, function()
-        EventNotificationEvent:FireAllClients("", 0)
+        EventNotificationEvent:FireAllClients("", 0, nil, nil)
     end)
 end
 
@@ -50,11 +50,11 @@ end
 local function TriggerTheftFrenzy(event)
     print("[RandomEvents] Theft Frenzy activated!")
     RandomEvents.TheftCooldownMultiplier = 0.5
-    EventNotificationEvent:FireAllClients(event.Message, event.Duration)
+    EventNotificationEvent:FireAllClients(event.Message, event.Duration, "Theft Frenzy", nil)
 
     task.delay(event.Duration, function()
         RandomEvents.TheftCooldownMultiplier = 1
-        EventNotificationEvent:FireAllClients("", 0)
+        EventNotificationEvent:FireAllClients("", 0, nil, nil)
     end)
 end
 
@@ -62,11 +62,11 @@ end
 local function TriggerGoldenHour(event)
     print("[RandomEvents] Golden Hour activated!")
     SleepSystem.IsNight = true
-    EventNotificationEvent:FireAllClients(event.Message, event.Duration)
+    EventNotificationEvent:FireAllClients(event.Message, event.Duration, "Golden Hour", nil)
 
     task.delay(event.Duration, function()
         SleepSystem.IsNight = false
-        EventNotificationEvent:FireAllClients("", 0)
+        EventNotificationEvent:FireAllClients("", 0, nil, nil)
     end)
 end
 
@@ -74,18 +74,18 @@ end
 local function TriggerShieldStorm(event)
     print("[RandomEvents] Shield Storm activated!")
     RandomEvents.ShieldActive = true
-    EventNotificationEvent:FireAllClients(event.Message, event.Duration)
+    EventNotificationEvent:FireAllClients(event.Message, event.Duration, "Shield Storm", nil)
 
     task.delay(event.Duration, function()
         RandomEvents.ShieldActive = false
-        EventNotificationEvent:FireAllClients("", 0)
+        EventNotificationEvent:FireAllClients("", 0, nil, nil)
     end)
 end
 
 -- Trigger Score Drain
 local function TriggerScoreDrain(event)
     print("[RandomEvents] Score Drain activated!")
-    EventNotificationEvent:FireAllClients(event.Message, 5)
+    EventNotificationEvent:FireAllClients(event.Message, 5, "Score Drain", nil)
 
     for _, player in ipairs(Players:GetPlayers()) do
         local data = PlayerDataManager.GetData(player)
@@ -96,7 +96,7 @@ local function TriggerScoreDrain(event)
     end
 
     task.delay(5, function()
-        EventNotificationEvent:FireAllClients("", 0)
+        EventNotificationEvent:FireAllClients("", 0, nil, nil)
     end)
 end
 
